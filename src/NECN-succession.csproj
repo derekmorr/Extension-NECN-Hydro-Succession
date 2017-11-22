@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project Sdk="Microsoft.NET.Sdk" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -10,9 +10,10 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>necn_hydro_succession</RootNamespace>
     <AssemblyName>Landis.Extension.Succession.NECN_Hydro</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <!-- <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion> -->
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
+    <!-- <TargetFrameworkProfile /> -->
+    <TargetFramework>netcoreapp2.0</TargetFramework>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -32,52 +33,52 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Edu.Wisc.Forest.Flel.Util, Version=1.1.400.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="bin\debug\Edu.Wisc.Forest.Flel.Util.dll">
       <SpecificVersion>False</SpecificVersion>
     </Reference>
-    <Reference Include="Landis.Core, Version=6.2.5807.26917, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="bin\debug\Landis.Core.dll">
       <SpecificVersion>False</SpecificVersion>
     </Reference>
-    <Reference Include="Landis.Library.AgeOnlyCohorts, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="bin\debug\Landis.Library.AgeOnlyCohorts.dll">
       <SpecificVersion>False</SpecificVersion>
     </Reference>
-    <Reference Include="Landis.Library.Biomass-v1, Version=1.0.5521.14523, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="bin\debug\Landis.Library.Biomass-v1.dll">
       <SpecificVersion>False</SpecificVersion>
     </Reference>
-    <Reference Include="Landis.Library.BiomassCohorts-v2, Version=1.3.6206.14399, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="bin\debug\Landis.Library.BiomassCohorts-v2.dll">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>bin\debug\Landis.Library.BiomassCohorts-v2.dll</HintPath>
     </Reference>
-    <Reference Include="Landis.Library.Climate-beta1.1, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="bin\debug\Landis.Library.Climate-beta1.1.dll">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>bin\debug\Landis.Library.Climate-beta1.1.dll</HintPath>
     </Reference>
-    <Reference Include="Landis.Library.Cohorts, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="bin\debug\Landis.Library.Cohorts.dll">
       <SpecificVersion>False</SpecificVersion>
     </Reference>
-    <Reference Include="Landis.Library.LeafBiomassCohorts, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="bin\debug\Landis.Library.LeafBiomassCohorts.dll">
       <SpecificVersion>False</SpecificVersion>
     </Reference>
-    <Reference Include="Landis.Library.Metadata, Version=1.0.1.18786, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="bin\debug\Landis.Library.Metadata.dll">
       <SpecificVersion>False</SpecificVersion>
     </Reference>
-    <Reference Include="Landis.Library.Succession-vAGB-Input, Version=4.0.6208.18921, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="bin\debug\Landis.Library.Succession-vAGB-Input.dll">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>bin\debug\Landis.Library.Succession-vAGB-Input.dll</HintPath>
     </Reference>
-    <Reference Include="Landis.SpatialModeling, Version=1.0.4815.34359, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="bin\debug\Landis.SpatialModeling.dll">
       <SpecificVersion>False</SpecificVersion>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="System.XML" />
-    <Reference Include="Troschuetz.Random, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="bin\debug\Troschuetz.Random.dll">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\lib\Troschuetz.Random.dll</HintPath>
     </Reference>
   </ItemGroup>
-  <ItemGroup>
+  <!-- <ItemGroup>
     <Compile Include="age-only-disturbances\DatasetParser.cs" />
     <Compile Include="age-only-disturbances\Events.cs" />
     <Compile Include="age-only-disturbances\IParameterDataset.cs" />
@@ -127,14 +128,11 @@
     <Compile Include="utility\Species_AuxParm.cs" />
     <Compile Include="utility\Util.cs" />
     <Compile Include="WoodLayer.cs" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  </ItemGroup> -->
+  <!-- <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" /> -->
   <PropertyGroup>
     <PostBuildEvent>
     </PostBuildEvent>
-  </PropertyGroup>
-  <PropertyGroup>
-    <PreBuildEvent>call $(SolutionDir)\install-libs.cmd</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
