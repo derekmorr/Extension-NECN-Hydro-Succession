@@ -73,63 +73,8 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="System.XML" />
-    <Reference Include="bin\debug\Troschuetz.Random.dll">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\lib\Troschuetz.Random.dll</HintPath>
-    </Reference>
+    <PackageReference Include="Troschuetz.Random" Version="4.2.0" />
   </ItemGroup>
-  <!-- <ItemGroup>
-    <Compile Include="age-only-disturbances\DatasetParser.cs" />
-    <Compile Include="age-only-disturbances\Events.cs" />
-    <Compile Include="age-only-disturbances\IParameterDataset.cs" />
-    <Compile Include="age-only-disturbances\Module.cs" />
-    <Compile Include="age-only-disturbances\NoParameters.cs" />
-    <Compile Include="age-only-disturbances\ParameterDataset.cs" />
-    <Compile Include="age-only-disturbances\PercentageTable.cs" />
-    <Compile Include="age-only-disturbances\PoolPercentages.cs" />
-    <Compile Include="AvailableN.cs" />
-    <Compile Include="HarvestEffects.cs" />
-    <Compile Include="LitterType.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="metadata\MonthlyLog.cs" />
-    <Compile Include="metadata\PrimaryLogShort.cs" />
-    <Compile Include="metadata\PrimaryLog.cs" />
-    <Compile Include="utility\BaseCohortsSiteVar.cs" />
-    <Compile Include="Century.cs" />
-    <Compile Include="CohortBiomass.cs" />
-    <Compile Include="ClimateRegionData.cs" />
-    <Compile Include="Establishment.cs" />
-    <Compile Include="FireEffects.cs" />
-    <Compile Include="ForestFloor.cs" />
-    <Compile Include="FunctionalType.cs" />
-    <Compile Include="InitialBiomass.cs" />
-    <Compile Include="Layer.cs" />
-    <Compile Include="LitterLayer.cs" />
-    <Compile Include="OtherData.cs" />
-    <Compile Include="Outputs.cs" />
-    <Compile Include="PlugIn.cs" />
-    <Compile Include="Roots.cs" />
-    <Compile Include="SiteVars.cs" />
-    <Compile Include="SoilLayer.cs" />
-    <Compile Include="SoilWater.cs" />
-    <Compile Include="SpeciesData.cs" />
-    <Compile Include="SufficientLight.cs" />
-    <Compile Include="utility\Ecoregions_AuxParm.cs" />
-    <Compile Include="utility\FunctionalTypeTable.cs" />
-    <Compile Include="utility\IInputParameters.cs" />
-    <Compile Include="utility\InputParameterParser.cs" />
-    <Compile Include="utility\InputParameters.cs" />
-    <Compile Include="utility\DoublePixel.cs" />
-    <Compile Include="utility\IntPixel.cs" />
-    <Compile Include="utility\MapNames.cs" />
-    <Compile Include="metadata\MetadataHandler.cs" />
-    <Compile Include="utility\ShortPixel.cs" />
-    <Compile Include="utility\Species_AuxParm.cs" />
-    <Compile Include="utility\Util.cs" />
-    <Compile Include="WoodLayer.cs" />
-  </ItemGroup> -->
-  <!-- <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" /> -->
   <PropertyGroup>
     <PostBuildEvent>
     </PostBuildEvent>
