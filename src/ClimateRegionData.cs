@@ -49,27 +49,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
 
             
         }
-        ////---------------------------------------------------------------------
-        //public static void ChangeParameters(Dynamic.IParameters parameters)
-        //{
-        //    B_MAX               = new Ecoregions.AuxParm<int>(PlugIn.ModelCore.Ecoregions);
-            
-        //    //  Fill in B_MAX array
-        //    foreach (IEcoregion ecoregion in PlugIn.ModelCore.Ecoregions) 
-        //    {
-        //        if(ecoregion.Active)
-        //        {
-        //            int largest_B_MAX_Spp = 0;
-        //            foreach (ISpecies species in PlugIn.ModelCore.Species) 
-        //            {
-        //                largest_B_MAX_Spp = Math.Max(largest_B_MAX_Spp, SpeciesData.B_MAX_Spp[species][ecoregion]);
-        //                //PlugIn.ModelCore.UI.WriteLine("B_MAX={0}. species={1}, ecoregion={2}", largest_B_MAX_Spp, species.Name, ecoregion.Name);
-        //            }
-        //            B_MAX[ecoregion] = largest_B_MAX_Spp;
-        //        }
-        //    }
-         
-        //}
 
         //---------------------------------------------------------------------
         // Generates new climate parameters for a SINGLE ECOREGION at an annual time step.
@@ -79,17 +58,13 @@ namespace Landis.Extension.Succession.NECN_Hydro
 
             if (spinupOrfuture == Climate.Phase.Future_Climate)
             {
-                //PlugIn.ModelCore.UI.WriteLine("Retrieving {0} for year {1}.", spinupOrfuture.ToString(), actualYear);
                 if (Climate.Future_MonthlyData.ContainsKey(actualYear))
                 {
                     AnnualWeather[ecoregion] = Climate.Future_MonthlyData[actualYear][ecoregion.Index];
                 }
-                //else
-                //    PlugIn.ModelCore.UI.WriteLine("Key is missing: Retrieving {0} for year {1}.", spinupOrfuture.ToString(), actualYear);
             }
             else
             {
-                //PlugIn.ModelCore.UI.WriteLine("Retrieving {0} for year {1}.", spinupOrfuture.ToString(), actualYear);
                 if (Climate.Spinup_MonthlyData.ContainsKey(actualYear))
                 {
                     AnnualWeather[ecoregion] = Climate.Spinup_MonthlyData[actualYear][ecoregion.Index];
@@ -107,13 +82,10 @@ namespace Landis.Extension.Succession.NECN_Hydro
             {
                 if (ecoregion.Active)
                 {
-                    //PlugIn.ModelCore.UI.WriteLine("Retrieving {0} for year {1}.", spinupOrfuture.ToString(), actualYear);
                     if (Climate.Future_MonthlyData.ContainsKey(actualYear))
                     {
                         AnnualWeather[ecoregion] = Climate.Future_MonthlyData[actualYear][ecoregion.Index];
                     }
-
-                    //PlugIn.ModelCore.UI.WriteLine("Utilizing Climate Data: Simulated Year = {0}, actualClimateYearUsed = {1}.", actualYear, AnnualWeather[ecoregion].Year);
                 }
 
             }

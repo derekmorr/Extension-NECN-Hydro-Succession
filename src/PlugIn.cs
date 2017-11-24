@@ -183,8 +183,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
 
             ClimateRegionData.AnnualNDeposition = new Ecoregions.AuxParm<double>(PlugIn.ModelCore.Ecoregions);
 
-            //base.RunReproductionFirst();
-
             base.Run();
 
             if(Timestep > 0)
@@ -238,8 +236,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
                 }
             }
 
-            //PlugIn.ModelCore.UI.WriteLine("Yr={0},      Shade Calculation:  B_MAX={1}, B_ACT={2}, Shade={3}.", PlugIn.ModelCore.CurrentTime, B_MAX, B_ACT, finalShade);
-
             return finalShade;
         }
         //---------------------------------------------------------------------
@@ -247,17 +243,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
         protected override void InitializeSite(ActiveSite site,
                                                ICommunity initialCommunity)
         {
-            //int swhc = (int)((SiteVars.SoilFieldCapacity[site] - SiteVars.SoilWiltingPoint[site]) * SiteVars.SoilDepth[site]);
-            ////if (!PlugIn.SWHC_List.Contains(swhc))
-            ////    PlugIn.SWHC_List.Add(swhc);
-
-            //if (!PlugIn.SWHC_List.Contains(swhc))
-            //{
-            //    PlugIn.SWHC_List.Add(swhc);
-            //    PlugIn.SWHC_List.Sort();
-            //}
-            //PlugIn.ModelCore.UI.WriteLine("SWHC = {0}", swhc);
-
             InitialBiomass initialBiomass = InitialBiomass.Compute(site, initialCommunity);
             SiteVars.MineralN[site] = parameters.InitialMineralN;
         }
@@ -274,7 +259,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
             ICohort cohort = (Landis.Library.LeafBiomassCohorts.ICohort)eventArgs.Cohort;
 
             float fractionPartialMortality = (float)eventArgs.Reduction;
-            //PlugIn.ModelCore.UI.WriteLine("Cohort experienced partial mortality: species={0}, age={1}, wood_biomass={2}, fraction_mortality={3:0.0}.", cohort.Species.Name, cohort.Age, cohort.WoodBiomass, fractionPartialMortality);
 
             AgeOnlyDisturbances.PoolPercentages cohortReductions = AgeOnlyDisturbances.Module.Parameters.CohortReductions[disturbanceType];
 
@@ -289,10 +273,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
 
             Roots.AddCoarseRootLitter(woodInput, cohort, cohort.Species, site);  // All of cohorts roots are killed.
             Roots.AddFineRootLitter(foliarInput, cohort, cohort.Species, site);
-
-            //PlugIn.ModelCore.UI.WriteLine("EVENT: Cohort Partial Mortality: species={0}, age={1}, disturbance={2}.", cohort.Species.Name, cohort.Age, disturbanceType);
-            //PlugIn.ModelCore.UI.WriteLine("       Cohort Reductions:  Foliar={0:0.00}.  Wood={1:0.00}.", cohortReductions.Foliar, cohortReductions.Wood);
-            //PlugIn.ModelCore.UI.WriteLine("       InputB/TotalB:  Foliar={0:0.00}/{1:0.00}, Wood={2:0.0}/{3:0.0}.", foliarInput, foliar, woodInput, wood);
 
             return;
         }
@@ -312,11 +292,7 @@ namespace Landis.Extension.Succession.NECN_Hydro
 
             double wood = (double) cohort.WoodBiomass;
 
-            //PlugIn.ModelCore.UI.WriteLine("Cohort Died: species={0}, age={1}, biomass={2}, foliage={3}.", cohort.Species.Name, cohort.Age, cohort.Biomass, foliar);
-
             if (disturbanceType == null) {
-                //PlugIn.ModelCore.UI.WriteLine("NO EVENT: Cohort Died: species={0}, age={1}, disturbance={2}.", cohort.Species.Name, cohort.Age, eventArgs.DisturbanceType);
-
                 ForestFloor.AddWoodLitter(wood, cohort.Species, eventArgs.Site);
                 ForestFloor.AddFoliageLitter(foliar, cohort.Species, eventArgs.Site);
 
@@ -325,8 +301,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
             }
 
             if (disturbanceType != null) {
-                //PlugIn.ModelCore.UI.WriteLine("DISTURBANCE EVENT: Cohort Died: species={0}, age={1}, disturbance={2}.", cohort.Species.Name, cohort.Age, eventArgs.DisturbanceType);
-
                 Disturbed[site] = true;
                 if (disturbanceType.IsMemberOf("disturbance:fire"))
                     Landis.Library.Succession.Reproduction.CheckForPostFireRegen(eventArgs.Cohort, site);
@@ -353,7 +327,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
         public bool SufficientLight(ISpecies species, ActiveSite site)
         {
 
-            //PlugIn.ModelCore.UI.WriteLine("  Calculating Sufficient Light from Succession.");
             byte siteShade = PlugIn.ModelCore.GetSiteVar<byte>("Shade")[site];
 
             double lightProbability = 0.0;
@@ -361,8 +334,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
 
             foreach (ISufficientLight lights in sufficientLight)
             {
-
-                //PlugIn.ModelCore.UI.WriteLine("Sufficient Light:  ShadeClass={0}, Prob0={1}.", lights.ShadeClass, lights.ProbabilityLight0);
                 if (lights.ShadeClass == species.ShadeTolerance)
                 {
                     if (siteShade == 0) lightProbability = lights.ProbabilityLight0;
@@ -400,9 +371,7 @@ namespace Landis.Extension.Succession.NECN_Hydro
         /// </summary>
         public bool Establish(ISpecies species, ActiveSite site)
         {
-            //IEcoregion ecoregion = modelCore.Ecoregion[site];
-            //double establishProbability = SpeciesData.EstablishProbability[species][ecoregion];
-            double establishProbability = Establishment.Calculate(species, site);// SpeciesData.EstablishProbability[species][ecoregion];
+            double establishProbability = Establishment.Calculate(species, site);
 
             return modelCore.GenerateUniform() < establishProbability;
         }
@@ -416,7 +385,7 @@ namespace Landis.Extension.Succession.NECN_Hydro
         public bool PlantingEstablish(ISpecies species, ActiveSite site)
         {
             IEcoregion ecoregion = modelCore.Ecoregion[site];
-            double establishProbability = Establishment.Calculate(species, site); //, Timestep); // SpeciesData.EstablishProbability[species][ecoregion];
+            double establishProbability = Establishment.Calculate(species, site);
 
             return establishProbability > 0.0;
         }

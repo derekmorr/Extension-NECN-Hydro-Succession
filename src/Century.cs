@@ -37,8 +37,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
                 if (Climate.Future_MonthlyData.ContainsKey(PlugIn.FutureClimateBaseYear + y + PlugIn.ModelCore.CurrentTime - years))
                     ClimateRegionData.AnnualWeather[ecoregion] = Climate.Future_MonthlyData[PlugIn.FutureClimateBaseYear + y - years + PlugIn.ModelCore.CurrentTime][ecoregion.Index];
 
-                //PlugIn.ModelCore.UI.WriteLine("PlugIn_FutureClimateBaseYear={0}, y={1}, ModelCore_CurrentTime={2}, CenturyTimeStep = {3}, SimulatedYear = {4}.", PlugIn.FutureClimateBaseYear, y, PlugIn.ModelCore.CurrentTime, years, (PlugIn.FutureClimateBaseYear + y - years + PlugIn.ModelCore.CurrentTime));
-
                 SiteVars.ResetAnnualValues(site);
 
                 if(y == 0 && SiteVars.FireSeverity != null && SiteVars.FireSeverity[site] > 0)
@@ -60,7 +58,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
                     {
                         AvailableN.CalculateMineralNfraction(site);
                     }
-                    //PlugIn.ModelCore.UI.WriteLine("SiteVars.MineralN = {0:0.00}, month = {1}.", SiteVars.MineralN[site], i);
 
                     Month = months[MonthCnt];
 
@@ -71,25 +68,27 @@ namespace Landis.Extension.Succession.NECN_Hydro
                     SiteVars.MonthlyStreamN[site][Month] = 0.0;
                     SiteVars.SourceSink[site].Carbon = 0.0;
                     SiteVars.TotalWoodBiomass[site] = Century.ComputeWoodBiomass((ActiveSite) site);
-                    //SiteVars.LAI[site] = Century.ComputeLAI((ActiveSite)site);
                                    
                     double ppt = ClimateRegionData.AnnualWeather[ecoregion].MonthlyPrecip[Century.Month];
 
                     double monthlyNdeposition;
-                    if  (PlugIn.AtmosNintercept !=-1 && PlugIn.AtmosNslope !=-1)
+                    if (PlugIn.AtmosNintercept != -1 && PlugIn.AtmosNslope != -1)
+                    {
                         monthlyNdeposition = PlugIn.AtmosNintercept + (PlugIn.AtmosNslope * ppt);
+                    }
                     else 
                     {
                         monthlyNdeposition = ClimateRegionData.AnnualWeather[ecoregion].MonthlyNDeposition[Century.Month];
                     }
 
                     if (monthlyNdeposition < 0)
-                        throw new System.ApplicationException("Error: Nitrogen deposition less than zero.");
+                    {
+                        
+                    }
 
                     ClimateRegionData.MonthlyNDeposition[ecoregion][Month] = monthlyNdeposition;
                     ClimateRegionData.AnnualNDeposition[ecoregion] += monthlyNdeposition;
                     SiteVars.MineralN[site] += monthlyNdeposition;
-                    //PlugIn.ModelCore.UI.WriteLine("Ndeposition={0},MineralN={1:0.00}.", monthlyNdeposition, SiteVars.MineralN[site]);
 
                     double liveBiomass = (double) ComputeLivingBiomass(siteCohorts);
                     double baseFlow, stormFlow, AET;
@@ -114,8 +113,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
                     // based on a review paper by Seitziner 2006.
 
                     double volatilize = (SiteVars.MineralN[site] * PlugIn.DenitrificationRate); 
-
-                    //PlugIn.ModelCore.UI.WriteLine("BeforeVol.  MineralN={0:0.00}.", SiteVars.MineralN[site]);
 
                     SiteVars.MineralN[site] -= volatilize;
                     SiteVars.SourceSink[site].Nitrogen += volatilize;
@@ -200,21 +197,17 @@ namespace Landis.Extension.Succession.NECN_Hydro
             double cRootN = cRootC / (double) SpeciesData.CoarseRootCN[species];
             double fRootN = fRootC / (double) SpeciesData.FineRootCN[species];
 
-            //double totalN = woodN + cRootN + leafN + fRootN;
 
-            //PlugIn.ModelCore.UI.WriteLine("month={0}, species={1}, leafB={2:0.0}, leafC={3:0.00}, leafN={4:0.0}, woodB={5:0.0}, woodC={6:0.000}, woodN={7:0.0}", Month, cohort.Species.Name, cohort.LeafBiomass, leafC, leafN, cohort.WoodBiomass, woodC, woodN);
-
-            SiteVars.CohortLeafC[site] += leafC;
+            SiteVars.CohortLeafC[site]  += leafC;
             SiteVars.CohortFRootC[site] += fRootC;
-            SiteVars.CohortLeafN[site] += leafN;
+            SiteVars.CohortLeafN[site]  += leafN;
             SiteVars.CohortFRootN[site] += fRootN;
-            SiteVars.CohortWoodC[site] += woodC;
+            SiteVars.CohortWoodC[site]  += woodC;
             SiteVars.CohortCRootC[site] += cRootC;
-            SiteVars.CohortWoodN[site] += woodN ;
+            SiteVars.CohortWoodN[site]  += woodN ;
             SiteVars.CohortCRootN[site] += cRootN;
 
             return;
-
         }
 
     }
