@@ -1,89 +1,31 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.NET.Sdk" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{651E102F-6FC1-4DB8-B384-3178E409AF2D}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>necn_hydro_succession</RootNamespace>
     <AssemblyName>Landis.Extension.Succession.NECN_Hydro</AssemblyName>
-    <!-- <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion> -->
-    <FileAlignment>512</FileAlignment>
-    <!-- <TargetFrameworkProfile /> -->
-    <TargetFramework>netcoreapp2.0</TargetFramework>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>\bin\debug\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="bin\debug\Edu.Wisc.Forest.Flel.Util.dll">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="Edu.Wisc.Forest.Flel.Util">
+      <HintPath>..\lib\Edu.Wisc.Forest.Flel.Util.dll</HintPath>
     </Reference>
-    <Reference Include="bin\debug\Landis.Core.dll">
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
-    <Reference Include="bin\debug\Landis.Library.AgeOnlyCohorts.dll">
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
-    <Reference Include="bin\debug\Landis.Library.Biomass-v1.dll">
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
-    <Reference Include="bin\debug\Landis.Library.BiomassCohorts-v2.dll">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>bin\debug\Landis.Library.BiomassCohorts-v2.dll</HintPath>
-    </Reference>
-    <Reference Include="bin\debug\Landis.Library.Climate-beta1.1.dll">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>bin\debug\Landis.Library.Climate-beta1.1.dll</HintPath>
-    </Reference>
-    <Reference Include="bin\debug\Landis.Library.Cohorts.dll">
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
-    <Reference Include="bin\debug\Landis.Library.LeafBiomassCohorts.dll">
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
-    <Reference Include="bin\debug\Landis.Library.Metadata.dll">
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
-    <Reference Include="bin\debug\Landis.Library.Succession-vAGB-Input.dll">
+    <PackageReference Include="Landis.Core" Version="1.0.0-CI00001" />
+    <PackageReference Include="Landis.Library.AgeOnlyCohorts" Version="1.0.0-CI00001" />
+    <PackageReference Include="Landis.Library.Biomass-v1.0.1" Version="1.0.0-CI00001" />
+    <PackageReference Include="Landis.Library.LeafBiomassCohorts-v1.0.1" Version="1.0.0-CI00000" />
+    <PackageReference Include="Landis.Library.Climate-beta1.1" Version="1.0.0-CI00002" />
+    <PackageReference Include="Landis.Library.Cohorts" Version="1.0.0-CI00001" />
+    <PackageReference Include="Landis.Library.LeafBiomassCohorts-v1.0.1" Version="1.0.0-CI00000" />
+    <PackageReference Include="Landis.Library.Metadata" Version="1.0.0-CI00002" />
+
+    <PackageReference Include="Landis.Library.Succession-v5" Version="1.0.0-CI00002" />
+
+    <!-- <Reference Include="bin\debug\Landis.Library.Succession-vAGB-Input.dll">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>bin\debug\Landis.Library.Succession-vAGB-Input.dll</HintPath>
-    </Reference>
-    <Reference Include="bin\debug\Landis.SpatialModeling.dll">
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.XML" />
+    </Reference> -->
+    <PackageReference Include="Landis.SpatialModeling" Version="1.0.0-CI00001" />
+
+
     <!-- <PackageReference Include="Troschuetz.Random" Version="4.2.0" /> -->
   </ItemGroup>
-  <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
-  </PropertyGroup>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>
