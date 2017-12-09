@@ -39,7 +39,7 @@ namespace Landis.Extension.Succession.NECN_Hydro
 
                 SiteVars.ResetAnnualValues(site);
 
-                if(y == 0 && SiteVars.FireSeverity != null && SiteVars.FireSeverity[site] > 0)
+                if (y == 0 && SiteVars.FireSeverity != null && SiteVars.FireSeverity[site] > 0)
                     FireEffects.ReduceLayers(SiteVars.FireSeverity[site], site);
 
                 // Next, Grow and Decompose each month
@@ -67,7 +67,7 @@ namespace Landis.Extension.Succession.NECN_Hydro
                     SiteVars.MonthlyResp[site][Month] = 0.0;
                     SiteVars.MonthlyStreamN[site][Month] = 0.0;
                     SiteVars.SourceSink[site].Carbon = 0.0;
-                    SiteVars.TotalWoodBiomass[site] = Century.ComputeWoodBiomass((ActiveSite) site);
+                    SiteVars.TotalWoodBiomass[site] = Century.ComputeWoodBiomass(site);
                                    
                     double ppt = ClimateRegionData.AnnualWeather[ecoregion].MonthlyPrecip[Century.Month];
 
@@ -79,11 +79,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
                     else 
                     {
                         monthlyNdeposition = ClimateRegionData.AnnualWeather[ecoregion].MonthlyNDeposition[Century.Month];
-                    }
-
-                    if (monthlyNdeposition < 0)
-                    {
-                        
                     }
 
                     ClimateRegionData.MonthlyNDeposition[ecoregion][Month] = monthlyNdeposition;
@@ -170,11 +165,10 @@ namespace Landis.Extension.Succession.NECN_Hydro
             SiteVars.CohortWoodN[site] = 0;
             SiteVars.CohortCRootN[site] = 0;
 
-            if (cohorts != null)
+            if (cohorts != null) 
                 foreach (ISpeciesCohorts speciesCohorts in cohorts)
                     foreach (ICohort cohort in speciesCohorts)
                         CalculateCohortCN(site, cohort);
-            return;
         }
 
         /// <summary>
@@ -190,13 +184,10 @@ namespace Landis.Extension.Succession.NECN_Hydro
             double fRootC = Roots.CalculateFineRoot(cohort, leafC);
             double cRootC = Roots.CalculateCoarseRoot(cohort, woodC);
 
-            double totalC = leafC + woodC + fRootC + cRootC;
-
-            double leafN  = leafC /  (double) SpeciesData.LeafCN[species];
-            double woodN = woodC / (double) SpeciesData.WoodCN[species];
-            double cRootN = cRootC / (double) SpeciesData.CoarseRootCN[species];
-            double fRootN = fRootC / (double) SpeciesData.FineRootCN[species];
-
+            double leafN  = leafC / SpeciesData.LeafCN[species];
+            double woodN  = woodC / SpeciesData.WoodCN[species];
+            double cRootN = cRootC / SpeciesData.CoarseRootCN[species];
+            double fRootN = fRootC / SpeciesData.FineRootCN[species];
 
             SiteVars.CohortLeafC[site]  += leafC;
             SiteVars.CohortFRootC[site] += fRootC;
@@ -206,8 +197,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
             SiteVars.CohortCRootC[site] += cRootC;
             SiteVars.CohortWoodN[site]  += woodN ;
             SiteVars.CohortCRootN[site] += cRootN;
-
-            return;
         }
 
     }
