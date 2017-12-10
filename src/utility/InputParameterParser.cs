@@ -11,7 +11,7 @@ namespace Landis.Extension.Succession.NECN_Hydro
     /// <summary>
     /// A parser that reads biomass succession parameters from text input.
     /// </summary>
-    public class InputParametersParser//<TParseResult>
+    public class InputParametersParser
         : TextParser<IInputParameters>
     {
         public override string LandisDataValue
@@ -25,12 +25,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
 
         public static class Names
         {
-            //public const string Timestep = "Timestep";
-            //public const string SeedingAlgorithm = "SeedingAlgorithm";
-
-            //public const string ClimateConfigFile = "ClimateConfigFile";
-            //public const string CalibrateMode = "CalibrateMode";
-            //public const string SufficientLight = "SufficientLightTable";
             public const string SpeciesParameters = "SpeciesParameters";
             public const string FunctionalGroupParameters = "FunctionalGroupParameters";
             public const string FireReductionParameters = "FireReductionParameters";
@@ -63,8 +57,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
             this.speciesDataset = PlugIn.ModelCore.Species;
             this.speciesLineNums = new Dictionary<string, int>();
             this.speciesName = new InputVar<string>("Species");
-
-            //Dynamic.InputValidation.Initialize();
         }
 
         //---------------------------------------------------------------------
@@ -286,14 +278,12 @@ namespace Landis.Extension.Succession.NECN_Hydro
             //--------------------------
             //  MinRelativeBiomass table
 
-            ReadName("MaximumLAI"); //"AvailableLightBiomass");
+            ReadName("MaximumLAI");
             InputVar<byte> shadeClassVar = new InputVar<byte>("Shade Class");
             InputVar<double> maxLAI = new InputVar<double>("Maximum LAI");
 
-            //List<IEcoregion> ecoregions = ReadEcoregions();
-            //string lastEcoregion = ecoregions[ecoregions.Count-1].Name;
-
-            for (byte shadeClass = 1; shadeClass <= 5; shadeClass++) {
+            for (byte shadeClass = 1; shadeClass <= 5; shadeClass++)
+            {
                 if (AtEndOfInput)
                     throw NewParseException("Expected a line with available light class {0}", shadeClass);
 
@@ -305,11 +295,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
                 
                 ReadValue(maxLAI, currentLine);
                 parameters.SetMaximumShadeLAI(shadeClass, maxLAI.Value);
-
-                //foreach (IEcoregion ecoregion in ecoregions)
-                //{
-                //    InputVar<Percentage> MinRelativeBiomass = new InputVar<Percentage>("Ecoregion " + ecoregion.Name);
-                //}
 
                 CheckNoDataAfter("the " + maxLAI + " column", currentLine);
                 GetNextLine();
@@ -473,7 +458,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
             PlugIn.ModelCore.UI.WriteLine("   Begin parsing FUNCTIONAL GROUP table.");
 
             ReadName("FunctionalGroupParameters");
-            //string InitialEcoregionParameters = "InitialEcoregionParameters";
 
             InputVar<string> ftname = new InputVar<string>("Name");
             InputVar<int> ftindex = new InputVar<int>("Index (< 25)");
@@ -503,13 +487,13 @@ namespace Landis.Extension.Succession.NECN_Hydro
                 ReadValue(ftindex , currentLine);
                 int ln = (int) ftindex.Value.Actual;
 
-                if(ln >= numFunctionalTypes)
+                if (ln >= numFunctionalTypes)
+                {
                     throw new InputValueException(ftindex.Value.String,
                                               "The index:  {0} exceeds the allowable number of functional groups, {1}",
                                               ftindex.Value.String, numFunctionalTypes-1);
+                }
 
-
-                //IEditableFunctionalType funcTParms = new EditableFunctionalType();
                 FunctionalType funcTParms = new FunctionalType();
                 parameters.FunctionalTypes[ln] = funcTParms;
 
@@ -561,121 +545,11 @@ namespace Landis.Extension.Succession.NECN_Hydro
                 ReadValue(fineRootFraction, currentLine);
                 funcTParms.FineRootFraction = fineRootFraction.Value;
 
-                //PlugIn.ModelCore.UI.WriteLine("PPRPTS2={0}.", parameters.FunctionalTypeTable[ln].PPRPTS2);
-
                 CheckNoDataAfter("the " + fineRootFraction.Name + " column", currentLine);
                 GetNextLine();
             }
 
 
-            //--------- Read In FIRST Ecoregion Table ---------------------------
-            //PlugIn.ModelCore.UI.WriteLine("   Begin reading INITIAL ECOREGION parameters.");
-            //ReadName(InitialEcoregionParameters);
-
-            //InputVar<string> ecoregionName = new InputVar<string>("Ecoregion");
-            //InputVar<double> iS1surfC = new InputVar<double>("Initial SOM1 surface C");
-            //InputVar<double> iS1surfN = new InputVar<double>("Initial SOM1 surface N");
-            //InputVar<double> iS1soilC = new InputVar<double>("Initial SOM1 soil C");
-            //InputVar<double> iS1soilN = new InputVar<double>("Initial SOM1 soil N");
-            //InputVar<double> iS2C = new InputVar<double>("Initial SOM2 (intermediate turnover) C");
-            //InputVar<double> iS2N = new InputVar<double>("Initial SOM2 (intermediate turnover) N");
-            //InputVar<double> iS3C = new InputVar<double>("Initial SOM3 (slow turnover) C");
-            //InputVar<double> iS3N = new InputVar<double>("Initial SOM3 (slow turnover) N");
-            //Dictionary <string, int> lineNumbers2 = new Dictionary<string, int>();
-
-            //while (! AtEndOfInput && CurrentName != Names.FireReductionParameters){ //Names.EcoregionParameters ) {
-            //    StringReader currentLine = new StringReader(CurrentLine);
-
-            //    ReadValue(ecoregionName, currentLine);
-
-            //    IEcoregion ecoregion = GetEcoregion(ecoregionName.Value,
-            //                                        lineNumbers2);
-
-                //ReadValue(iS1surfC, currentLine);
-                //parameters.SetInitSOM1surfC(ecoregion, iS1surfC.Value);
-
-                //ReadValue(iS1surfN, currentLine);
-                //parameters.SetInitSOM1surfN(ecoregion, iS1surfN.Value);
-
-                //ReadValue(iS1soilC, currentLine);
-                //parameters.SetInitSOM1soilC(ecoregion, iS1soilC.Value);
-
-                //ReadValue(iS1soilN, currentLine);
-                //parameters.SetInitSOM1soilN(ecoregion, iS1soilN.Value);
-
-                //ReadValue(iS2C, currentLine);
-                //parameters.SetInitSOM2C(ecoregion, iS2C.Value);
-
-                //ReadValue(iS2N, currentLine);
-                //parameters.SetInitSOM2N(ecoregion, iS2N.Value);
-
-                //ReadValue(iS3C, currentLine);
-                //parameters.SetInitSOM3C(ecoregion, iS3C.Value);
-
-                //ReadValue(iS3N, currentLine);
-                //parameters.SetInitSOM3N(ecoregion, iS3N.Value);
-
-            //    CheckNoDataAfter("the " + ecoregionName.Name + " column", currentLine);
-
-            //    GetNextLine();
-            //}
-
-            //--------- Read In SECOND Ecoregion Table ---------------------------
-            // First, read table of additional parameters for ecoregions
-            //PlugIn.ModelCore.UI.WriteLine("   Begin reading FIXED ECOREGION parameters.");
-            //ReadName(Names.EcoregionParameters);
-
-            //InputVar<double> pclay = new InputVar<double>("Percent Clay");
-            //InputVar<double> psand = new InputVar<double>("Percent Sand");
-            //InputVar<int> sd = new InputVar<int>("Soil Depth");
-            //InputVar<double> fc = new InputVar<double>("Field Capacity");
-            //InputVar<double> wp = new InputVar<double>("Wilting Point");
-            //InputVar<double> sff = new InputVar<double>("Storm Flow Fraction");
-            //InputVar<double> bff = new InputVar<double>("Base Flow Fraction");
-            //InputVar<double> drain = new InputVar<double>("Drain Fraction");
-            //InputVar<double> lat = new InputVar<double>("Latitude");
-            //InputVar<double> denits = new InputVar<double>("Denitrification");
-
-            //Dictionary<string, int> lineNumbers = new Dictionary<string, int>();
-
-            //while (! AtEndOfInput && CurrentName != Names.FireReductionParameters ) {
-            //    StringReader currentLine = new StringReader(CurrentLine);
-
-            //    ReadValue(ecoregionName, currentLine);
-
-            //    IEcoregion ecoregion = GetEcoregion(ecoregionName.Value,
-            //                                        lineNumbers);
-
-            //    //ReadValue(sd, currentLine);
-            //    //parameters.SetSoilDepth(ecoregion, sd.Value);
-
-            //    ReadValue(pclay, currentLine);
-            //    parameters.SetPercentClay(ecoregion, pclay.Value);
-
-                //ReadValue(psand, currentLine);
-                //parameters.SetPercentSand(ecoregion, psand.Value);
-
-                //ReadValue(fc, currentLine);
-                //parameters.SetFieldCapacity(ecoregion, fc.Value);
-
-                //ReadValue(wp, currentLine);
-                //parameters.SetWiltingPoint(ecoregion, wp.Value);
-
-                //ReadValue(sff, currentLine);
-                //parameters.SetStormFlowFraction(ecoregion, sff.Value);
-
-                //ReadValue(bff, currentLine);
-                //parameters.SetBaseFlowFraction(ecoregion, bff.Value);
-
-                //ReadValue(drain, currentLine);
-                //parameters.SetDrain(ecoregion, drain.Value);
-
-
-
-            //    CheckNoDataAfter("the " + pclay.Name + " column", currentLine);
-
-            //    GetNextLine();
-            //}
             //--------- Read In Fire Reductions Table ---------------------------
             PlugIn.ModelCore.UI.WriteLine("   Begin reading FIRE REDUCTION parameters.");
             ReadName(Names.FireReductionParameters);
@@ -753,21 +627,11 @@ namespace Landis.Extension.Succession.NECN_Hydro
         /// </summary>
         public static void RegisterForInputValues()
         {
-            //Type.SetDescription<LayerType>("Litter Types");
-            //InputValues.Register<LayerType>(LTParse);
             Type.SetDescription<WaterType>("Water Effect on Decomposition");
             InputValues.Register<WaterType>(WParse);
 
         }
-        //---------------------------------------------------------------------
-/*        public static LayerType LTParse(string word)
-        {
-            if (word == "Surface")
-                return LayerType.Surface;
-            else if (word == "Soil")
-                return LayerType.Soil;
-            throw new System.FormatException("Valid names:  Surface, Soil");
-        }*/
+
         //---------------------------------------------------------------------
         public static WaterType WParse(string word)
         {
@@ -777,40 +641,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
                 return WaterType.Ratio;
             throw new System.FormatException("Valid names:  Linear, Ratio");
         }
-        //---------------------------------------------------------------------
-
-        //protected void ReadDynamicTable(List<Dynamic.ParametersUpdate> parameterUpdates)
-        //{
-        //    int? prevYear = null;
-        //    int prevYearLineNum = 0;
-        //    InputVar<int> year = new InputVar<int>("Year", Dynamic.InputValidation.ReadYear);
-        //    InputVar<string> file = new InputVar<string>("Parameter File");
-        //    while (! AtEndOfInput) {
-        //        StringReader currentLine = new StringReader(CurrentLine);
-
-        //        ReadValue(year, currentLine);
-        //        if (prevYear.HasValue) {
-        //            if (year.Value.Actual < prevYear.Value)
-        //                throw new InputValueException(year.Value.String,
-        //                                              "Year {0} is before year {1} which was on line {2}",
-        //                                              year.Value.Actual, prevYear.Value, prevYearLineNum);
-        //            if (year.Value.Actual == prevYear.Value)
-        //                throw new InputValueException(year.Value.String,
-        //                                              "Year {0} was already used on line {1}",
-        //                                              year.Value.Actual, prevYearLineNum);
-        //        }
-        //        prevYear = year.Value.Actual;
-        //        prevYearLineNum = LineNumber;
-
-        //        ReadValue(file, currentLine);
-        //        Dynamic.InputValidation.CheckPath(file.Value);
-
-        //        CheckNoDataAfter("the " + file + " column", currentLine);
-        //        parameterUpdates.Add(new Dynamic.ParametersUpdate(year.Value.Actual,
-        //                                                                file.Value.Actual));
-        //        GetNextLine();
-        //    }
-        //}
         //---------------------------------------------------------------------
 
         /// <summary>
