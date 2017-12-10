@@ -13,12 +13,7 @@ namespace Landis.Extension.Succession.NECN_Hydro
     {
         
         public static void Decompose(ActiveSite site)
-        {
-            //PlugIn.ModelCore.UI.WriteLine("SiteVars.SOM2[site].Nitrogen = {0:0.00}", SiteVars.SOM2[site].Nitrogen);
-            //PlugIn.ModelCore.UI.WriteLine("SiteVars.MineralN = {0:0.00}", SiteVars.MineralN[site]);
-            
-            IEcoregion ecoregion = PlugIn.ModelCore.Ecoregion[site];
-            
+        {            
             //---------------------------------------------------------------------
             // Surface SOM1 decomposes to SOM2 with CO2 lost to respiration.
             
@@ -54,8 +49,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
                     // Decompose Surface SOM1 to SOM2
                     SiteVars.SOM1surface[site].TransferCarbon(SiteVars.SOM2[site], netCFlow);
                     SiteVars.SOM1surface[site].TransferNitrogen(SiteVars.SOM2[site], netCFlow, som1c_surface, ratioCNtoSOM2, site);
-                    //PlugIn.ModelCore.UI.WriteLine(".  MineralN={0:0.00}.", SiteVars.MineralN[site]);
-
                 }
             }
 
@@ -64,8 +57,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
             // Soil SOM1 decomposes to SOM2 and SOM3 with CO2 loss and leaching
             
             double som1c_soil = SiteVars.SOM1soil[site].Carbon;
-            //PlugIn.ModelCore.UI.WriteLine("SOM1soil[site].Carbon={0:0.00}", som1c_soil);
-            //PlugIn.ModelCore.UI.WriteLine("SiteVars.MineralN = {0:0.00} - pre SOM1.", SiteVars.MineralN[site]);
           
             if (som1c_soil > 0.0000001)
             {
@@ -79,18 +70,16 @@ namespace Landis.Extension.Succession.NECN_Hydro
                 //Compute total C flow out of soil microbes.
                 //Added impact of soil anaerobic conditions -rm 12/91
                 double textureEffect = OtherData.TextureEffectIntercept
-                                        + OtherData.TextureEffectSlope * SiteVars.SoilPercentSand[site];//ClimateRegionData.PercentSand[ecoregion];
-                
+                                        + OtherData.TextureEffectSlope * SiteVars.SoilPercentSand[site];                
                 double anerb = SiteVars.AnaerobicEffect[site];
 
-                //PlugIn.ModelCore.UI.WriteLine("SiteVars.DecayFactor = {0:0.00}, SoilDecayRateMicrobes = {1:0.00}, texture = {2:0.00}, anerb = {3:0.00}, MonthAdjust = {4:0.00}.",
                 double totalCflow = som1c_soil 
                             * SiteVars.DecayFactor[site]
                             * OtherData.LitterParameters[(int) LayerType.Soil].DecayRateMicrobes
-                            * PlugIn.DecayRateSOM1 // ClimateRegionData.DecayRateSOM1[ecoregion]
-                             * textureEffect
-                             * anerb
-                             * OtherData.MonthAdjust;
+                            * PlugIn.DecayRateSOM1
+                            * textureEffect
+                            * anerb
+                            * OtherData.MonthAdjust;
 
                 // If soil SOM1 can decompose to SOM2, it will also go to SOM3.
                 // If it can't go to SOM2, it can't decompose at all.
@@ -98,7 +87,7 @@ namespace Landis.Extension.Succession.NECN_Hydro
                 if (SiteVars.SOM1soil[site].DecomposePossible(ratioCNtoSOM2, SiteVars.MineralN[site]))
                 {   
                     //CO2 Loss - Compute and schedule respiration flows
-                    double P1CO2_Soil = OtherData.P1CO2_Soil_Intercept + OtherData.P1CO2_Soil_Slope * SiteVars.SoilPercentSand[site];//ClimateRegionData.PercentSand[ecoregion];
+                    double P1CO2_Soil = OtherData.P1CO2_Soil_Intercept + OtherData.P1CO2_Soil_Slope * SiteVars.SoilPercentSand[site];
 
                     double co2loss = totalCflow * P1CO2_Soil;
                     double netCFlow = totalCflow - co2loss;
@@ -106,7 +95,7 @@ namespace Landis.Extension.Succession.NECN_Hydro
  
                     // Decompose Soil SOM1 to SOM3
                     // The fraction of totalCflow that goes to SOM3 is a function of clay content.
-                    double clayEffect = OtherData.PS1S3_Intercept + (OtherData.PS1S3_Slope * SiteVars.SoilPercentClay[site]);//ClimateRegionData.PercentClay[ecoregion]);
+                    double clayEffect = OtherData.PS1S3_Intercept + (OtherData.PS1S3_Slope * SiteVars.SoilPercentClay[site]);
                     double cFlowS1S3 = netCFlow * clayEffect * (1.0 + OtherData.AnaerobicImpactSlope * (1.0 - anerb));
 
                     //Compute and schedule C & N flows and update mineralization accumulators
@@ -118,7 +107,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
                     //Partition and schedule C and N flows 
                     SiteVars.SOM1soil[site].TransferCarbon(SiteVars.SOM3[site], cFlowS1S3);
                     SiteVars.SOM1soil[site].TransferNitrogen(SiteVars.SOM3[site], cFlowS1S3, som1c_soil, ratioCNto3, site);
-                    //PlugIn.ModelCore.UI.WriteLine("AfterSOM1.  MineralN={0:0.00}.", SiteVars.MineralN[site]);
                      
                     // Leaching of Organics
                     // This only occurs when the water flow out of water layer 2
@@ -129,13 +117,9 @@ namespace Landis.Extension.Succession.NECN_Hydro
                     if(SiteVars.WaterMovement[site] > 0.0)  //Volume of water moving-ML.  Used to be an index of water movement that indicates saturation (amov)
                     {
                         //ML deleted the linten function which was poorly described in the Century manual.  
-                        //double leachTextureEffect = OtherData.OMLeachIntercept + OtherData.OMLeachSlope * ClimateRegionData.PercentSand[ecoregion];
-                        //double linten = System.Math.Min(1.0 - ((OtherData.OMLeachWater - SiteVars.WaterMovement[site])  / OtherData.OMLeachWater), 1.0);
-                        //cLeached = netCFlow * leachTextureEffect * linten;
+                        double leachTextureEffect = OtherData.OMLeachIntercept + OtherData.OMLeachSlope * SiteVars.SoilPercentSand[site];
 
-                        double leachTextureEffect = OtherData.OMLeachIntercept + OtherData.OMLeachSlope * SiteVars.SoilPercentSand[site];//ClimateRegionData.PercentSand[ecoregion];
-
-                        double indexWaterMovement = SiteVars.WaterMovement[site] / (SiteVars.SoilDepth[site] * SiteVars.SoilFieldCapacity[site]);//ClimateRegionData.FieldCapacity[ecoregion]);
+                        double indexWaterMovement = SiteVars.WaterMovement[site] / (SiteVars.SoilDepth[site] * SiteVars.SoilFieldCapacity[site]);
                                               
                         cLeached = netCFlow * leachTextureEffect * indexWaterMovement;
                                                                         
@@ -149,12 +133,7 @@ namespace Landis.Extension.Succession.NECN_Hydro
 
                         SiteVars.SOM1soil[site].Nitrogen -= orgflow; 
                         SiteVars.Stream[site].Nitrogen += orgflow;
-                        //PlugIn.ModelCore.UI.WriteLine("DON Leaching. ratioCN_SOM1soil={0:0.00}, DON={1:0.00}.", ratioCN_SOM1soil, orgflow);
-
                         SiteVars.MonthlyStreamN[site][Century.Month] += orgflow;
-
-                        //PlugIn.ModelCore.UI.WriteLine("DON Leaching. totalNLeach={0:0.0}, MineralN={1:0.00}", totalNleached, SiteVars.MineralN[site]);         
-
                     }
 
                     // C & N movement from SOM1 to SOM2.
@@ -164,8 +143,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
                     //Partition and schedule C and N flows 
                     SiteVars.SOM1soil[site].TransferCarbon(SiteVars.SOM2[site], cFlowS1S2);
                     SiteVars.SOM1soil[site].TransferNitrogen(SiteVars.SOM2[site], cFlowS1S2, som1c_soil, ratioCNtoSOM2, site);
-                    //PlugIn.ModelCore.UI.WriteLine("PartitionCN.  MineralN={0:0.00}.", SiteVars.MineralN[site]);
-
                 }  
             } 
 
@@ -188,27 +165,24 @@ namespace Landis.Extension.Succession.NECN_Hydro
                 // Compute total C flow out of SOM2C
                 double totalCflow = som2c 
                                 * SiteVars.DecayFactor[site] 
-                                * PlugIn.DecayRateSOM2 //ClimateRegionData.DecayRateSOM2[ecoregion]
+                                * PlugIn.DecayRateSOM2
                                 * anerb //impact of soil anaerobic conditions
                                 * OtherData.MonthAdjust;
-                //PlugIn.ModelCore.UI.WriteLine("som2c={0:0.00}, decayFactor={1:0.00}, decayRateSOM2={2:0.00}, anerb={3:0.00}, monthAdj={4:0.00}", som2c, SiteVars.DecayFactor[site], ClimateRegionData.DecayRateSOM2[ecoregion], anerb, OtherData.MonthAdjust);
-
+                
                 // If SOM2 can decompose to SOM1, it will also go to SOM3.
                 // If it can't go to SOM1, it can't decompose at all.
 
                 if (SiteVars.SOM2[site].DecomposePossible(ratioCNto1, SiteVars.MineralN[site]))
-                    //PlugIn.ModelCore.UI.WriteLine("DecomposePoss.  MineralN={0:0.00}.", SiteVars.MineralN[site]);
                 {
                 
                     //CO2 loss - Compute and schedule respiration flows
                     double co2loss = totalCflow * OtherData.FractionSOM2toCO2;
                     double netCFlow = totalCflow - co2loss;
                     SiteVars.SOM2[site].Respiration(co2loss, site);
-                    //PlugIn.ModelCore.UI.WriteLine("AfterTransferto.  MineralN={0:0.00}.", SiteVars.MineralN[site]);
-
+                
                     // -----------------------------------------------
                     // Decompose SOM2 to SOM3, SOM3 gets what's left of totalCflow.
-                    double clayEffect = OtherData.PS2S3_Intercept + OtherData.PS2S3_Slope * SiteVars.SoilPercentClay[site];//ClimateRegionData.PercentClay[ecoregion];
+                    double clayEffect = OtherData.PS2S3_Intercept + OtherData.PS2S3_Slope * SiteVars.SoilPercentClay[site];
                     double cFlowS2S3 = netCFlow * clayEffect * (1.0 + OtherData.AnaerobicImpactSlope * (1.0 - anerb));
 
                     //Compute and schedule C and N flows and update mineralization accumulators
@@ -216,7 +190,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
                                             OtherData.MinCNenterSOM3, 
                                             OtherData.MaxCNenterSOM3,
                                             OtherData.MinContentN_SOM3);
-                    //PlugIn.ModelCore.UI.WriteLine("TransferSOM2.  MineralN={0:0.00}.", SiteVars.MineralN[site]);
                     
                     //Partition and schedule C and N flows 
                     SiteVars.SOM2[site].TransferCarbon(SiteVars.SOM3[site], cFlowS2S3);
@@ -235,7 +208,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
                     //Partition and schedule C and N flows 
                     SiteVars.SOM2[site].TransferCarbon(SiteVars.SOM1soil[site], cFlowS2S1);
                     SiteVars.SOM2[site].TransferNitrogen(SiteVars.SOM1soil[site], cFlowS2S1, som2c, ratioCNto1, site);
-                    //PlugIn.ModelCore.UI.WriteLine("AfterSOM2.  MineralN={0:0.00}.", SiteVars.MineralN[site]);
                 }
                 
             }
@@ -258,7 +230,7 @@ namespace Landis.Extension.Succession.NECN_Hydro
                 //Compute total C flow out of SOM3C
                 double totalCflow = som3c
                                 * SiteVars.DecayFactor[site]
-                                * PlugIn.DecayRateSOM3 //ClimateRegionData.DecayRateSOM3[ecoregion]
+                                * PlugIn.DecayRateSOM3
                                 * anerb 
                                 * OtherData.MonthAdjust;
 
@@ -277,7 +249,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
                     // Partition and schedule C and N flows 
                     SiteVars.SOM3[site].TransferCarbon(SiteVars.SOM1soil[site], cFlowS3S1);
                     SiteVars.SOM3[site].TransferNitrogen(SiteVars.SOM1soil[site], cFlowS3S1, som3c, ratioCNto1, site);
-                    //PlugIn.ModelCore.UI.WriteLine("AfterSOM3.  MineralN={0:0.00}.", SiteVars.MineralN[site]);
                 }
             }
         }
