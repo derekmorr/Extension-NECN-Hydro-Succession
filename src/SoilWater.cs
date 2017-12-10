@@ -17,15 +17,7 @@ namespace Landis.Extension.Succession.NECN_Hydro
 
     public class SoilWater
     {
-        private static double Precipitation;
-        private static double H2Oinputs;
-        private static double tave;
-        private static double tmax;
-        private static double tmin;
-        private static double pet;
         private static int daysInMonth;
-        private static int beginGrowing;
-        private static int endGrowing;
 
         public static void Run(int year, int month, double liveBiomass, Site site, out double baseFlow, out double stormFlow, out double AET)
         {
@@ -35,10 +27,7 @@ namespace Landis.Extension.Succession.NECN_Hydro
             //     Updated from Fortran 4 - rm 2/92
             //     Rewritten by Bill Pulliam - 9/94
             //     Rewritten by Melissa Lucash- 11/2014
-
-            //PlugIn.ModelCore.UI.WriteLine("month={0}.", Century.Month);
-        
-            //...Initialize Local Variables
+       
             double addToSoil = 0.0;
             double bareSoilEvap = 0.0;
             baseFlow = 0.0;
@@ -52,6 +41,15 @@ namespace Landis.Extension.Succession.NECN_Hydro
             double availableWater = 0.0;     //amount of water deemed available to the trees, which will be the average between the max and min
             double priorWaterAvail = SiteVars.AvailableWater[site];
 
+            double H2Oinputs;
+            double tave;
+            double tmax;
+            double tmin;
+            double pet;
+            double Precipitation;
+            double beginGrowing;
+            double endGrowing;
+        
             //...Calculate external inputs
             IEcoregion ecoregion = PlugIn.ModelCore.Ecoregion[site];
 
@@ -60,11 +58,9 @@ namespace Landis.Extension.Succession.NECN_Hydro
             double soilWaterContent = SiteVars.SoilWaterContent[site];
             double liquidSnowpack = SiteVars.LiquidSnowPack[site];
 
-            H2Oinputs = ClimateRegionData.AnnualWeather[ecoregion].MonthlyPrecip[month]; //rain + irract in cm;
-            Precipitation = ClimateRegionData.AnnualWeather[ecoregion].MonthlyPrecip[month]; //rain + irract in cm;
-            //PlugIn.ModelCore.UI.WriteLine("SoilWater. WaterInputs={0:0.00}, .", H2Oinputs);
+            H2Oinputs = ClimateRegionData.AnnualWeather[ecoregion].MonthlyPrecip[month];
+            Precipitation = ClimateRegionData.AnnualWeather[ecoregion].MonthlyPrecip[month];
             tave = ClimateRegionData.AnnualWeather[ecoregion].MonthlyTemp[month];
-            //PlugIn.ModelCore.UI.WriteLine("SoilWater. AvgTemp={0:0.00}, .", tave);
             tmax = ClimateRegionData.AnnualWeather[ecoregion].MonthlyMaxTemp[month];
             tmin = ClimateRegionData.AnnualWeather[ecoregion].MonthlyMinTemp[month];
             pet = ClimateRegionData.AnnualWeather[ecoregion].MonthlyPET[month];
@@ -72,12 +68,12 @@ namespace Landis.Extension.Succession.NECN_Hydro
             beginGrowing = ClimateRegionData.AnnualWeather[ecoregion].BeginGrowing;
             endGrowing = ClimateRegionData.AnnualWeather[ecoregion].EndGrowing;
 
-            double wiltingPoint = SiteVars.SoilWiltingPoint[site];//ClimateRegionData.WiltingPoint[ecoregion];
-            double soilDepth = SiteVars.SoilDepth[site]; // ClimateRegionData.SoilDepth[ecoregion];
-            double fieldCapacity = SiteVars.SoilFieldCapacity[site];//ClimateRegionData.FieldCapacity[ecoregion];
-            double stormFlowFraction = SiteVars.SoilStormFlowFraction[site]; // ClimateRegionData.StormFlowFraction[ecoregion];
-            double baseFlowFraction = SiteVars.SoilBaseFlowFraction[site];//ClimateRegionData.BaseFlowFraction[ecoregion];
-            double drain = SiteVars.SoilDrain[site]; // ClimateRegionData.Drain[ecoregion];
+            double wiltingPoint = SiteVars.SoilWiltingPoint[site];
+            double soilDepth = SiteVars.SoilDepth[site];
+            double fieldCapacity = SiteVars.SoilFieldCapacity[site];
+            double stormFlowFraction = SiteVars.SoilStormFlowFraction[site];
+            double baseFlowFraction = SiteVars.SoilBaseFlowFraction[site];
+            double drain = SiteVars.SoilDrain[site];
            
                       
             //...Calculating snow pack first. Occurs when mean monthly air temperature is equal to or below freezing,
@@ -88,12 +84,10 @@ namespace Landis.Extension.Succession.NECN_Hydro
                 snow = H2Oinputs; 
                 H2Oinputs = 0.0;  
                 liquidSnowpack += snow;  //only tracking liquidsnowpack (water equivalent) and not the actual amount of snow on the ground (i.e. not snowpack).
-                //PlugIn.ModelCore.UI.WriteLine("Let it snow!! snow={0}, liquidsnowpack={1}.", snow, liquidSnowpack);
             }
             else
             {
                 soilWaterContent += H2Oinputs;
-                //PlugIn.ModelCore.UI.WriteLine("Let it rain and add it to soil! rain={0}, soilWaterContent={1}.", H2Oinputs, soilWaterContent);
             }
 
            
@@ -157,7 +151,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
 
                 //Subtract stormflow from soil water
                 soilWaterContent -= stormFlow;
-                //PlugIn.ModelCore.UI.WriteLine("Water Runs Off. stormflow={0}.", stormFlow);
             }
             
             //...Calculate bare soil water loss and interception  when air temperature is above freezing and no snow cover.
@@ -185,7 +178,7 @@ namespace Landis.Extension.Succession.NECN_Hydro
             }
                      
             // Calculate actual evapotranspiration.  This equation is derived from the stand equation for calculating AET from PET
-            //  Bergström, 1992
+            //  Bergstrï¿½m, 1992
 
             double waterEmpty = wiltingPoint * soilDepth;
 
@@ -199,8 +192,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
             if (actualET < 0.0)
                 actualET = 0.0;
             AET = actualET;
-
-            //PlugIn.ModelCore.UI.WriteLine("AET {0} = ", AET);
 
             //Subtract transpiration from soil water content
             soilWaterContent -= actualET;
@@ -227,83 +218,80 @@ namespace Landis.Extension.Succession.NECN_Hydro
             SiteVars.WaterMovement[site] = waterMovement;
             SiteVars.AvailableWater[site] = availableWater;  //available to plants for growth     
             SiteVars.SoilWaterContent[site] = soilWaterContent;
-            SiteVars.SoilTemperature[site] = CalculateSoilTemp(tmin, tmax, liveBiomass, litterBiomass, month);
-            SiteVars.DecayFactor[site] = CalculateDecayFactor((int)OtherData.WType, SiteVars.SoilTemperature[site], relativeWaterContent, ratioPrecipPET, month);
+            SiteVars.SoilTemperature[site] = CalculateSoilTemp(tmin, tmax, liveBiomass, litterBiomass);
+            SiteVars.DecayFactor[site] = CalculateDecayFactor((int)OtherData.WType, SiteVars.SoilTemperature[site], relativeWaterContent, ratioPrecipPET);
             SiteVars.AnaerobicEffect[site] = CalculateAnaerobicEffect(drain, ratioPrecipPET, pet, tave);
             if (month == 0)
                 SiteVars.DryDays[site] = 0;
             else
                 SiteVars.DryDays[site] += CalculateDryDays(month, beginGrowing, endGrowing, waterEmpty, availableWater, priorWaterAvail);
                         
-            return;
         }
 
-        private static int CalculateDryDays(int month, int beginGrowing, int endGrowing, double wiltingPoint, double waterAvail, double priorWaterAvail)
+        private static int CalculateDryDays(int month, double beginGrowing, double endGrowing, double wiltingPoint, double waterAvail, double priorWaterAvail)
         {
-            //PlugIn.ModelCore.UI.WriteLine("Month={0}, begin={1}, end={2}.", month, beginGrowing, endGrowing);
             int[] julianMidMonth = { 15, 45, 74, 105, 135, 166, 196, 227, 258, 288, 319, 349 };
             int dryDays = 0;
             int julianDay = julianMidMonth[month]; 
             int oldJulianDay = julianMidMonth[month-1]; 
             double dryDayInterp = 0.0;
-            //PlugIn.ModelCore.UI.WriteLine("Month={0}, begin={1}, end={2}, wiltPt={3:0.0}, waterAvail={4:0.0}, priorWater={5:0.0}.", month, beginGrowing, endGrowing, wiltingPoint, waterAvail, priorWaterAvail);
             
             //Increment number of dry days, truncate at end of growing season
-                if ((julianDay > beginGrowing) && (oldJulianDay < endGrowing)) 
-                {
-                    if ((priorWaterAvail >= wiltingPoint)  && (waterAvail >= wiltingPoint))
-                        {
-                        dryDayInterp += 0.0;  // NONE below wilting point
-                    }
-                    else if ((priorWaterAvail > wiltingPoint) && (waterAvail < wiltingPoint)) 
+            if ((julianDay > beginGrowing) && (oldJulianDay < endGrowing)) 
+            {
+                if ((priorWaterAvail >= wiltingPoint)  && (waterAvail >= wiltingPoint))
                     {
-                        dryDayInterp = daysInMonth * (wiltingPoint - waterAvail) / 
-                                        (priorWaterAvail - waterAvail);
-                        if ((oldJulianDay < beginGrowing) && (julianDay > beginGrowing))
-                            if ((julianDay - beginGrowing) < dryDayInterp)
-                                dryDayInterp = julianDay - beginGrowing;
-    
-                        if ((oldJulianDay < endGrowing) && (julianDay > endGrowing))
-                            dryDayInterp = endGrowing - julianDay + dryDayInterp;
-    
-                        if (dryDayInterp < 0.0)
-                            dryDayInterp = 0.0;
-    
-                    } 
-                    else if ((priorWaterAvail < wiltingPoint) && (waterAvail > wiltingPoint)) 
-                    {
-                        dryDayInterp = daysInMonth * (wiltingPoint - priorWaterAvail) / 
-                                        (waterAvail - priorWaterAvail);
-          
-                        if ((oldJulianDay < beginGrowing) && (julianDay > beginGrowing))
-                            dryDayInterp = oldJulianDay + dryDayInterp - beginGrowing;
-    
-                        if (dryDayInterp < 0.0)
-                            dryDayInterp = 0.0;
-    
-                        if ((oldJulianDay < endGrowing) && (julianDay > endGrowing))
-                            if ((endGrowing - oldJulianDay) < dryDayInterp)
-                                dryDayInterp = endGrowing - oldJulianDay;
-                    } 
-                    else // ALL below wilting point
-                    {
-                        dryDayInterp = daysInMonth;
-          
-                        if ((oldJulianDay < beginGrowing) && (julianDay > beginGrowing))
-                            dryDayInterp = julianDay - beginGrowing;
-    
-                        if ((oldJulianDay < endGrowing) && (julianDay > endGrowing))
-                            dryDayInterp = endGrowing - oldJulianDay;
-                    }
-      
-                    dryDays += (int) dryDayInterp;
+                    dryDayInterp += 0.0;  // NONE below wilting point
                 }
-                return dryDays;
+                else if ((priorWaterAvail > wiltingPoint) && (waterAvail < wiltingPoint)) 
+                {
+                    dryDayInterp = daysInMonth * (wiltingPoint - waterAvail) / 
+                                    (priorWaterAvail - waterAvail);
+                    if ((oldJulianDay < beginGrowing) && (julianDay > beginGrowing))
+                        if ((julianDay - beginGrowing) < dryDayInterp)
+                            dryDayInterp = julianDay - beginGrowing;
+
+                    if ((oldJulianDay < endGrowing) && (julianDay > endGrowing))
+                        dryDayInterp = endGrowing - julianDay + dryDayInterp;
+
+                    if (dryDayInterp < 0.0)
+                        dryDayInterp = 0.0;
+
+                } 
+                else if ((priorWaterAvail < wiltingPoint) && (waterAvail > wiltingPoint)) 
+                {
+                    dryDayInterp = daysInMonth * (wiltingPoint - priorWaterAvail) / 
+                                    (waterAvail - priorWaterAvail);
+        
+                    if ((oldJulianDay < beginGrowing) && (julianDay > beginGrowing))
+                        dryDayInterp = oldJulianDay + dryDayInterp - beginGrowing;
+
+                    if (dryDayInterp < 0.0)
+                        dryDayInterp = 0.0;
+
+                    if ((oldJulianDay < endGrowing) && (julianDay > endGrowing))
+                        if ((endGrowing - oldJulianDay) < dryDayInterp)
+                            dryDayInterp = endGrowing - oldJulianDay;
+                } 
+                else // ALL below wilting point
+                {
+                    dryDayInterp = daysInMonth;
+        
+                    if ((oldJulianDay < beginGrowing) && (julianDay > beginGrowing))
+                        dryDayInterp = julianDay - beginGrowing;
+
+                    if ((oldJulianDay < endGrowing) && (julianDay > endGrowing))
+                        dryDayInterp = endGrowing - oldJulianDay;
+                }
+    
+                dryDays += (int) dryDayInterp;
+            }
+            return dryDays;
         }
         
         //---------------------------------------------------------------------------
 
-        private static double CalculateDecayFactor(int idef, double soilTemp, double rwc, double ratioPrecipPET, int month)
+        private static double CalculateDecayFactor(int idef, double soilTemp, double rwc, double ratioPrecipPET)
         {
             // Decomposition factor relfecting the effects of soil temperature and moisture on decomposition
             // Originally revised from prelim.f of CENTURY
@@ -348,12 +336,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
             //defac must >= 0.0
             if (decayFactor < 0.0) decayFactor = 0.0;
 
-            //if (soilTemp < 0 && decayFactor > 0.01)
-            //{
-            //    PlugIn.ModelCore.UI.WriteLine("Yr={0},Mo={1}, PET={2:0.00}, MinT={3:0.0}, MaxT={4:0.0}, AveT={5:0.0}, H20={6:0.0}.", Century.Year, month, pet, tmin, tmax, tave, H2Oinputs);
-            //    PlugIn.ModelCore.UI.WriteLine("Yr={0},Mo={1}, DecayFactor={2:0.00}, tempFactor={3:0.00}, waterFactor={4:0.00}, ratioPrecipPET={5:0.000}, soilT={6:0.0}.", Century.Year, month, decayFactor, tempModifier, W_Decomp, ratioPrecipPET, soilTemp);
-            //}
-
             return decayFactor;   //Combination of water and temperature effects on decomposition
         }
 
@@ -364,7 +346,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
             //This function computes the effect of temperature on decomposition.
             //It is an exponential function.  Older versions of Century used a density function.
             //Created 10/95 - rm
-
 
             double Teff0 = OtherData.TemperatureEffectIntercept;
             double Teff1 = OtherData.TemperatureEffectSlope;
@@ -411,19 +392,15 @@ namespace Landis.Extension.Succession.NECN_Hydro
                     double newrat = aneref1 + (xh2o / pet);
                     double slope = (1.0 - aneref3) / (aneref1 - aneref2);
                     anerob = 1.0 + slope * (newrat - aneref1);
-                    //PlugIn.ModelCore.UI.WriteLine("If higher threshold. newrat={0:0.0}, slope={1:0.00}, anerob={2:0.00}", newrat, slope, anerob);      
                 }
 
                 if (anerob < aneref3)
                     anerob = aneref3;
-                //PlugIn.ModelCore.UI.WriteLine("Lower than threshold. Anaerobic={0}", anerob);      
             }
-            //PlugIn.ModelCore.UI.WriteLine("ratioPrecipPET={0:0.0}, tave={1:0.00}, pet={2:0.00}, AnaerobicFactor={3:0.00}, Drainage={4:0.00}", ratioPrecipPET, tave, pet, anerob, drain);         
-            //PlugIn.ModelCore.UI.WriteLine("Anaerobic Effect = {0:0.00}.", anerob);
             return anerob;
         }
         //---------------------------------------------------------------------------
-        private static double CalculateSoilTemp(double tmin, double tmax, double liveBiomass, double litterBiomass, int month)
+        private static double CalculateSoilTemp(double tmin, double tmax, double liveBiomass, double litterBiomass)
         {
             // ----------- Calculate Soil Temperature -----------
             double bio = liveBiomass + (OtherData.EffectLitterSoilT * litterBiomass);
@@ -440,15 +417,12 @@ namespace Landis.Extension.Succession.NECN_Hydro
             //         take into account the effect of snow (AKM)
             double soilTemp = (maxSoilTemp + minSoilTemp) / 2.0;
 
-            //PlugIn.ModelCore.UI.WriteLine("Month={0}, Soil Temperature = {1}.", month+1, soilTemp);
-
             return soilTemp;
         }
         //--------------------------------------------------------------------------
         public static void Leach(Site site, double baseFlow, double stormFlow)
         {
            
-            //  double minlch, double frlech[3], double stream[8], double basef, double stormf)
             //Originally from leach.f of CENTURY model
             //...This routine computes the leaching of inorganic nitrogen (potential for use with phosphorus, and sulfur)
             //...Written 2/92 -rm. Revised on 12/11 by ML
@@ -464,34 +438,22 @@ namespace Landis.Extension.Succession.NECN_Hydro
 
             //Outputs:
             //minerl and stream are recomputed
-            IEcoregion ecoregion = PlugIn.ModelCore.Ecoregion[site];
             double waterMove = SiteVars.WaterMovement[site];
 
             double amtNLeached = 0.0;
 
-            //PlugIn.ModelCore.UI.WriteLine("WaterMove={0:0}, ", waterMove);         
-           
-         //...waterMove > 0. indicates a saturated water flow out of layer lyr
+            //...waterMove > 0. indicates a saturated water flow out of layer lyr
             if (waterMove > 0.0 && SiteVars.MineralN[site] > 0.0)
             {
-                double textureEffect = OtherData.MineralLeachIntercept + OtherData.MineralLeachSlope * SiteVars.SoilPercentSand[site];//ClimateRegionData.PercentSand[ecoregion];
-                //double leachIntensity = (1.0 - (OtherData.OMLeachWater - waterMove) / OtherData.OMLeachWater);
-                //amtNLeached = textureEffect * SiteVars.MineralN[site] * OtherData.NfracLeachWater * OtherData.NO3frac;
+                double textureEffect = OtherData.MineralLeachIntercept + OtherData.MineralLeachSlope * SiteVars.SoilPercentSand[site];
                 amtNLeached = textureEffect * SiteVars.MineralN[site] *  OtherData.NO3frac;
-                
-                //PlugIn.ModelCore.UI.WriteLine("amtNLeach={0:0.0}, textureEffect={1:0.0}, waterMove={2:0.0}, MineralN={3:0.00}", amtNLeached, textureEffect, waterMove, SiteVars.MineralN[site]);      
             }        
             
             double totalNleached = (baseFlow * amtNLeached) + (stormFlow * amtNLeached);
                         
             SiteVars.MineralN[site] -= totalNleached;
-            //PlugIn.ModelCore.UI.WriteLine("AfterSoilWaterLeaching. totalNLeach={0:0.0}, MineralN={1:0.00}", totalNleached, SiteVars.MineralN[site]);         
-
             SiteVars.Stream[site].Nitrogen += totalNleached;
             SiteVars.MonthlyStreamN[site][Century.Month] += totalNleached;
-            //PlugIn.ModelCore.UI.WriteLine("AfterSoilWaterLeaching. totalNLeach={0:0.0}, MineralN={1:0.00}", totalNleached, SiteVars.MineralN[site]);        
-
-            return;
         }
 
     }
