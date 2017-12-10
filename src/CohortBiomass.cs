@@ -26,7 +26,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
         //  Ecoregion where the cohort's site is located
         private IEcoregion ecoregion;
         private double defoliation;
-        private double defoliatedLeafBiomass;
 
         //---------------------------------------------------------------------
 
@@ -43,7 +42,8 @@ namespace Landis.Extension.Succession.NECN_Hydro
         /// </summary>
         public float[] ComputeChange(ICohort cohort, ActiveSite site)
         {           
-            
+            double defoliatedLeafBiomass;
+
             ecoregion = PlugIn.ModelCore.Ecoregion[site];
 
             // First call to the Calibrate Log:
@@ -64,7 +64,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
             double[] mortalityGrowth = ComputeGrowthMortality(cohort, site);
 
             double[] totalMortality = new double[2]{Math.Min(cohort.WoodBiomass, mortalityAge[0] + mortalityGrowth[0]), Math.Min(cohort.LeafBiomass, mortalityAge[1] + mortalityGrowth[1])};
-            double nonDisturbanceLeafFall = totalMortality[1];
 
             // ****** Growth *******
             double[] actualANPP = ComputeActualANPP(cohort, site, siteBiomass, mortalityAge);
@@ -163,7 +162,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
 
             double leafFractionNPP  = FunctionalType.Table[SpeciesData.FuncType[cohort.Species]].FCFRACleaf;
             double maxBiomass       = SpeciesData.Max_Biomass[cohort.Species];
-            double sitelai          = SiteVars.LAI[site];
             double maxNPP           = SpeciesData.Max_ANPP[cohort.Species];
 
             double limitT   = calculateTemp_Limit(site, cohort.Species);
@@ -230,7 +228,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
         {
 
             double monthAdjust = 1.0 / 12.0;
-            double totalBiomass = (double) (cohort.WoodBiomass + cohort.LeafBiomass);
             double max_age      = (double) cohort.Species.Longevity;
             double d            = FunctionalType.Table[SpeciesData.FuncType[cohort.Species]].MortCurveShape;
 
@@ -272,7 +269,7 @@ namespace Landis.Extension.Succession.NECN_Hydro
             // Leaves and Needles dropped.
             if(SpeciesData.LeafLongevity[cohort.Species] > 1.0) 
             {
-                M_leaf = cohort.LeafBiomass / (double) SpeciesData.LeafLongevity[cohort.Species] / 12.0;  //Needle deposit spread across the year.
+                M_leaf = cohort.LeafBiomass / SpeciesData.LeafLongevity[cohort.Species] / 12.0;  //Needle deposit spread across the year.
                
             }
             else
@@ -310,8 +307,8 @@ namespace Landis.Extension.Succession.NECN_Hydro
 
         private void UpdateDeadBiomass(ICohort cohort, ActiveSite site, double[] totalMortality)
         {
-            double mortality_wood    = (double) totalMortality[0];
-            double mortality_nonwood = (double)totalMortality[1];
+            double mortality_wood    = totalMortality[0];
+            double mortality_nonwood = totalMortality[1];
 
             //  Add mortality to dead biomass pools.
             //  Coarse root mortality is assumed proportional to aboveground woody mortality
@@ -329,8 +326,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
                 Roots.AddFineRootLitter(mortality_nonwood, cohort, cohort.Species, site);
             }
 
-            return;
-
         }
 
 
@@ -342,8 +337,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
         public static float[] InitialBiomass(ISpecies species, ISiteCohorts siteCohorts,
                                             ActiveSite site)
         {
-            IEcoregion ecoregion = PlugIn.ModelCore.Ecoregion[site];
-
             double leafFrac = FunctionalType.Table[SpeciesData.FuncType[species]].FCFRACleaf;
 
             double B_ACT = SiteVars.ActualSiteBiomass(site);
@@ -359,9 +352,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
             double initialWoodB = initialBiomass - initialLeafB;
             double[] initialB = new double[2] { initialWoodB, initialLeafB };
 
-
-
-
             float[] initialWoodLeafBiomass = new float[2] { (float)initialB[0], (float)initialB[1] };
 
             return initialWoodLeafBiomass;
@@ -374,8 +364,8 @@ namespace Landis.Extension.Succession.NECN_Hydro
         /// </summary>
         private static void CalculateNPPcarbon(ActiveSite site, ICohort cohort, double[] AGNPP)
         {
-            double NPPwood = (double) AGNPP[0] * 0.47;
-            double NPPleaf = (double) AGNPP[1] * 0.47;
+            double NPPwood = AGNPP[0] * 0.47;
+            double NPPleaf = AGNPP[1] * 0.47;
 
             double NPPcoarseRoot = Roots.CalculateCoarseRoot(cohort, NPPwood);
             double NPPfineRoot = Roots.CalculateFineRoot(cohort, NPPleaf);
@@ -574,11 +564,7 @@ namespace Landis.Extension.Succession.NECN_Hydro
             // Ratio_AvailWaterToPET used to be pptprd and WaterLimit used to be pprdwc
             double Ratio_AvailWaterToPET = 0.0;
             double waterContent = SiteVars.SoilFieldCapacity[site] - SiteVars.SoilWiltingPoint[site];
- 
-            double tmin = ClimateRegionData.AnnualWeather[ecoregion].MonthlyMinTemp[Century.Month];
-            
-            double H2Oinputs = ClimateRegionData.AnnualWeather[ecoregion].MonthlyPrecip[Century.Month]; //rain + irract;
-            
+                    
             double pet = ClimateRegionData.AnnualWeather[ecoregion].MonthlyPET[Century.Month];
             
             if (pet >= 0.01)
