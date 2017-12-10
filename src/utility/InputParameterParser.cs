@@ -34,10 +34,9 @@ namespace Landis.Extension.Succession.NECN_Hydro
 
         //---------------------------------------------------------------------
 
-        private IEcoregionDataset ecoregionDataset;
-        private ISpeciesDataset speciesDataset;
-        private Dictionary<string, int> speciesLineNums;
-        private InputVar<string> speciesName;
+        private readonly ISpeciesDataset speciesDataset;
+        private readonly Dictionary<string, int> speciesLineNums;
+        private readonly InputVar<string> speciesName;
 
         //---------------------------------------------------------------------
 
@@ -45,15 +44,12 @@ namespace Landis.Extension.Succession.NECN_Hydro
         {
             SeedingAlgorithmsUtil.RegisterForInputValues();
             RegisterForInputValues();
-            Percentage dummy = new Percentage();
-
         }
 
         //---------------------------------------------------------------------
 
         public InputParametersParser()
         {
-            this.ecoregionDataset = PlugIn.ModelCore.Ecoregions;
             this.speciesDataset = PlugIn.ModelCore.Species;
             this.speciesLineNums = new Dictionary<string, int>();
             this.speciesName = new InputVar<string>("Species");
@@ -227,7 +223,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
                 InputVar<int> anppMapFreq = new InputVar<int>("ANPPMapFrequency");
                 ReadVar(anppMapFreq);
                 PlugIn.ANPPMapFrequency = anppMapFreq.Value;
-
             }
 
             InputVar<string> aneeMaps = new InputVar<string>("ANEEMapNames");
@@ -238,7 +233,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
                 InputVar<int> aneeMapFreq = new InputVar<int>("ANEEMapFrequency");
                 ReadVar(aneeMapFreq);
                 PlugIn.ANEEMapFrequency = aneeMapFreq.Value;
-
             }
 
             InputVar<string> soilCarbonMaps = new InputVar<string>("SoilCarbonMapNames");
@@ -249,7 +243,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
                 InputVar<int> soilCarbonMapFreq = new InputVar<int>("SoilCarbonMapFrequency");
                 ReadVar(soilCarbonMapFreq);
                 PlugIn.SoilCarbonMapFrequency = soilCarbonMapFreq.Value;
-
             }
 
             InputVar<string> soilNitrogenMaps = new InputVar<string>("SoilNitrogenMapNames");
@@ -260,7 +253,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
                 InputVar<int> soilNitrogenMapFreq = new InputVar<int>("SoilNitrogenMapFrequency");
                 ReadVar(soilNitrogenMapFreq);
                 PlugIn.SoilNitrogenMapFrequency = soilNitrogenMapFreq.Value;
-
             }
 
             InputVar<string> totalCMaps = new InputVar<string>("TotalCMapNames");
@@ -271,7 +263,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
                 InputVar<int> totalCMapFreq = new InputVar<int>("TotalCMapFrequency");
                 ReadVar(totalCMapFreq);
                 PlugIn.TotalCMapFrequency = totalCMapFreq.Value;
-
             }
 
 
@@ -315,8 +306,8 @@ namespace Landis.Extension.Succession.NECN_Hydro
 
             int previousNumber = 0;
 
-            while (! AtEndOfInput && CurrentName != Names.SpeciesParameters
-                                  && previousNumber != 6) {
+            while (! AtEndOfInput && CurrentName != Names.SpeciesParameters && previousNumber != 6)
+            {
                 StringReader currentLine = new StringReader(CurrentLine);
 
                 ISufficientLight suffLight = new SufficientLight();
@@ -389,7 +380,8 @@ namespace Landis.Extension.Succession.NECN_Hydro
             InputVar<int> maxBiomass = new InputVar<int>("Maximum Aboveground Biomass");
             string lastColumn = "the " + maxBiomass.Name + " column";
 
-            while (! AtEndOfInput && CurrentName != Names.FunctionalGroupParameters) {
+            while (! AtEndOfInput && CurrentName != Names.FunctionalGroupParameters)
+            {
                 StringReader currentLine = new StringReader(CurrentLine);
                 ISpecies species = ReadSpecies(currentLine);
 
@@ -479,13 +471,14 @@ namespace Landis.Extension.Succession.NECN_Hydro
             InputVar<double> coarseRootFraction = new InputVar<double>("CRootFrac");
             InputVar<double> fineRootFraction = new InputVar<double>("FRootFrac");
 
-            while (! AtEndOfInput && CurrentName != Names.FireReductionParameters) {
+            while (! AtEndOfInput && CurrentName != Names.FireReductionParameters)
+            {
                 StringReader currentLine = new StringReader(CurrentLine);
 
                 ReadValue(ftname , currentLine);
 
                 ReadValue(ftindex , currentLine);
-                int ln = (int) ftindex.Value.Actual;
+                int ln = ftindex.Value.Actual;
 
                 if (ln >= numFunctionalTypes)
                 {
@@ -563,7 +556,7 @@ namespace Landis.Extension.Succession.NECN_Hydro
                 StringReader currentLine = new StringReader(CurrentLine);
 
                 ReadValue(frindex , currentLine);
-                int ln = (int) frindex.Value.Actual;
+                int ln = frindex.Value.Actual;
 
                 if(ln < 1 || ln > 5)
                     throw new InputValueException(ftindex.Value.String,
@@ -586,15 +579,12 @@ namespace Landis.Extension.Succession.NECN_Hydro
             }
 
             //--------- Read In Harvest Reductions Table ---------------------------
-            InputVar<string> hreds = new InputVar<string>("HarvestReductions");
             ReadOptionalName(Names.HarvestReductionParameters);
             {
                 PlugIn.ModelCore.UI.WriteLine("   Begin reading HARVEST REDUCTION parameters.");
                 InputVar<string> prescriptionName = new InputVar<string>("Prescription");
                 InputVar<double> wred_pr = new InputVar<double>("Wood Reduction");
                 InputVar<double> lred_pr = new InputVar<double>("Litter Reduction");
-
-                List<string> prescriptionNames = new List<string>();
 
                 while (!AtEndOfInput && CurrentName != Names.AgeOnlyDisturbanceParms)
                 {
@@ -662,63 +652,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
             else
                 speciesLineNums[species.Name] = LineNumber;
             return species;
-        }
-        //---------------------------------------------------------------------
-
-        /// <summary>
-        /// Reads ecoregion names as column headings
-        /// </summary>
-        private List<IEcoregion> ReadEcoregions()
-        {
-            if (AtEndOfInput)
-                throw NewParseException("Expected a line with the names of 1 or more active ecoregions.");
-
-            InputVar<string> ecoregionName = new InputVar<string>("Ecoregion");
-            List<IEcoregion> ecoregions = new List<IEcoregion>();
-            StringReader currentLine = new StringReader(CurrentLine);
-            TextReader.SkipWhitespace(currentLine);
-            while (currentLine.Peek() != -1) {
-                ReadValue(ecoregionName, currentLine);
-                IEcoregion ecoregion = ecoregionDataset[ecoregionName.Value.Actual];
-                if (ecoregion == null)
-                    throw new InputValueException(ecoregionName.Value.String,
-                                                  "{0} is not an ecoregion name.",
-                                                  ecoregionName.Value.String);
-                if (! ecoregion.Active)
-                    throw new InputValueException(ecoregionName.Value.String,
-                                                  "{0} is not an active ecoregion",
-                                                  ecoregionName.Value.String);
-                if (ecoregions.Contains(ecoregion))
-                    throw new InputValueException(ecoregionName.Value.String,
-                                                  "The ecoregion {0} appears more than once.",
-                                                  ecoregionName.Value.String);
-                ecoregions.Add(ecoregion);
-                TextReader.SkipWhitespace(currentLine);
-            }
-            GetNextLine();
-
-            return ecoregions;
-        }
-
-        //---------------------------------------------------------------------
-
-        private IEcoregion GetEcoregion(InputValue<string>      ecoregionName,
-                                        Dictionary<string, int> lineNumbers)
-        {
-            IEcoregion ecoregion = ecoregionDataset[ecoregionName.Actual];
-            if (ecoregion == null)
-                throw new InputValueException(ecoregionName.String,
-                                              "{0} is not an ecoregion name.",
-                                              ecoregionName.String);
-            int lineNumber;
-            if (lineNumbers.TryGetValue(ecoregion.Name, out lineNumber))
-                throw new InputValueException(ecoregionName.String,
-                                              "The ecoregion {0} was previously used on line {1}",
-                                              ecoregionName.String, lineNumber);
-            else
-                lineNumbers[ecoregion.Name] = LineNumber;
-
-            return ecoregion;
         }
     }
 }
