@@ -48,128 +48,44 @@ namespace Landis.Extension.Succession.NECN_Hydro
         /// <summary>
         /// Name
         /// </summary>
-        public LayerName Name
-        {
-            get
-            {
-                return name;
-            }
-            set
-            {
-                name = value;
-            }
-        }
-        //---------------------------------------------------------------------
+        public LayerName Name { get; set; }
+        
         /// <summary>
         /// Provides an index to LitterTypeTable
         /// </summary>
-        public LayerType Type
-        {
-            get
-            {
-                return type;
-            }
-            set
-            {
-                type = value;
-            }
-        }
-        //---------------------------------------------------------------------
-
+        public LayerType Type { get; set; }
+        
+        /// <summary>
+        /// Carbon
+        /// </summary>
+        public double Carbon { get; set; }
+        
         /// <summary>
         /// Nitrogen
         /// </summary>
-        public double Carbon
-        {
-            get
-            {
-                return carbon;
-            }
-            set
-            {
-                carbon = value;
-            }
-        }
-        //---------------------------------------------------------------------
-
-        /// <summary>
-        /// Nitrogen
-        /// </summary>
-        public double Nitrogen
-        {
-            get
-            {
-                return nitrogen;
-            }
-            set
-            {
-                nitrogen = value;
-            }
-        }
-        //---------------------------------------------------------------------
-
+        public double Nitrogen { get; set; }
+        
         /// <summary>
         /// Pool decay rate.
         /// </summary>
-        public  double DecayValue
-        {
-            get
-            {
-                return decayValue;
-            }
-            set
-            {
-                decayValue = value;
-            }
-        }
-
+        public double DecayValue { get; set; }
+        
         //---------------------------------------------------------------------
         /// <summary>
         /// Pool Carbon:Nitrogen Ratio
         /// </summary>
-        public  double FractionLignin
-        {
-            get
-            {
-                return fractionLignin;
-            }
-            set
-            {
-                fractionLignin = value;
-            }
-        }
-        //---------------------------------------------------------------------
+        public double FractionLignin { get; set; }
+        
         /// <summary>
         /// Net Mineralization
         /// </summary>
-        public double NetMineralization
-        {
-            get
-            {
-                return netMineralization;
-            }
-            set
-            {
-                netMineralization = value;
-            }
-        }
-        //---------------------------------------------------------------------
+        public double NetMineralization { get; set; }
+        
         /// <summary>
         /// Gross Mineralization
         /// </summary>
-        public double GrossMineralization
-        {
-            get
-            {
-                return grossMineralization;
-            }
-            set
-            {
-                grossMineralization = value;
-            }
-        }
-
-        // --------------------------------------------------
+        public double GrossMineralization { get; set; }
+        
         public Layer Clone()
         {
             Layer newLayer = new Layer(this.Name, this.Type);
@@ -270,7 +186,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
                     this.TransferNitrogen(SiteVars.SOM1soil[site], carbonToSOM1, litterC, ratioCN, site);
                 }
             }
-            return;
         }
 
         //---------------------------------------------------------------------
@@ -373,19 +288,16 @@ namespace Landis.Extension.Succession.NECN_Hydro
             //...If C/N of Box A > C/N of new material entering Box B
             if ((CFlow / NFlow) > ratioCNtoDestination)
             {
-               //...IMMOBILIZATION occurs.
-               //...Compute the amount of N immobilized.
-               //     since  ratioCNtoDestination = netCFlow / (Nflow + immobileN),
-               //     where immobileN is the extra N needed from the mineral pool
+                //...IMMOBILIZATION occurs.
+                //...Compute the amount of N immobilized.
+                //     since  ratioCNtoDestination = netCFlow / (Nflow + immobileN),
+                //     where immobileN is the extra N needed from the mineral pool
                 double immobileN = (CFlow / ratioCNtoDestination) - NFlow;
                 
                 this.Nitrogen -= NFlow;
                 destination.Nitrogen += NFlow;
 
-                // Schedule flow from mineral pool to Box B (immobileN)
-                // flow(labile,bnps,time,immflo);
                 //Don't allow mineral N to go to zero or negative.- ML
-
                 if (immobileN > SiteVars.MineralN[site])
                 {
                     immobileN = SiteVars.MineralN[site] - 0.01; //leave some small amount of mineral N
@@ -422,25 +334,22 @@ namespace Landis.Extension.Succession.NECN_Hydro
 
             //...Net mineralization
             this.NetMineralization += mineralNFlow;
-
-            return;
         }
 
         public void Respiration(double co2loss, ActiveSite site)
         {
-        //lock(site){
-        // Copyright 1993 Colorado State University
-        // All Rights Reserved
-        // Compute flows associated with microbial respiration.
+            // Copyright 1993 Colorado State University
+            // All Rights Reserved
+            // Compute flows associated with microbial respiration.
 
-        // Input:
-        //  co2loss = CO2 loss associated with decomposition
-        //  Box A.  For components with only 1 layer, tcstva will be dimensioned (1).
+            // Input:
+            //  co2loss = CO2 loss associated with decomposition
+            //  Box A.  For components with only 1 layer, tcstva will be dimensioned (1).
 
-        //  Transput:
-        //c         carbonSourceSink = C source/sink
-        //c         grossMineralization = gross mineralization
-        //c         netMineralization = net mineralization for layer N
+            //  Transput:
+            //c         carbonSourceSink = C source/sink
+            //c         grossMineralization = gross mineralization
+            //c         netMineralization = net mineralization for layer N
 
             //c...Mineralization associated with respiration is proportional to the N fraction.
             double mineralNFlow = co2loss * this.Nitrogen / this.Carbon; 
@@ -460,14 +369,11 @@ namespace Landis.Extension.Succession.NECN_Hydro
             SiteVars.MineralN[site] += mineralNFlow;
 
             //c...Update gross mineralization
-            // this.GrossMineralization += mineralNFlow;
             if (mineralNFlow > 0)
                 SiteVars.GrossMineralization[site] += mineralNFlow;
 
             //c...Update net mineralization
             this.NetMineralization += mineralNFlow;
-
-            return;
         }
 
         public bool DecomposePossible(double ratioCNnew, double mineralN)
@@ -481,18 +387,14 @@ namespace Landis.Extension.Succession.NECN_Hydro
             bool canDecompose = true;
 
             //c...If there is no available mineral N
-            if (mineralN < 0.0000001)
+            
+            // Compare the C/N of new material to the C/N of the layer if C/N of
+            // the layer > C/N of new material
+            if (mineralN < 0.0000001 && (this.Carbon / this.Nitrogen > ratioCNnew))
             {
-
-                // Compare the C/N of new material to the C/N of the layer if C/N of
-                // the layer > C/N of new material
-                if (this.Carbon / this.Nitrogen > ratioCNnew)
-                {
-
-                    // Immobilization is necessary and the stuff in Box A can't
-                    // decompose to Box B.
-                    canDecompose = false;
-                }
+                // Immobilization is necessary and the stuff in Box A can't
+                // decompose to Box B.
+                canDecompose = false;
             }
 
             // If there is some available mineral N, decomposition can
@@ -500,7 +402,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
             // the next time step.
 
             return canDecompose;
-
         }
 
         public void AdjustLignin(double inputC, double inputFracLignin)
@@ -529,8 +430,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
             double newFraction = (oldlig + newlig) / (this.Carbon + inputC);
 
             this.FractionLignin = newFraction;
-
-            return;
         }
 
         public void AdjustDecayRate(double inputC, double inputDecayRate)
@@ -543,8 +442,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
 
             //c...Compute decay rate in combined residue
             this.DecayValue = (oldDecayRate + newDecayRate) / (inputC + this.Carbon);
-
-            return;
         }
 
 
@@ -607,9 +504,7 @@ namespace Landis.Extension.Succession.NECN_Hydro
                 throw new ArgumentException("Percentage must be between 0% and 100%");
 
             this.Carbon   = this.Carbon * (1.0 - percentageLost);
-            this.Nitrogen   = this.Nitrogen * (1.0 - percentageLost);
-
-            return;
+            this.Nitrogen = this.Nitrogen * (1.0 - percentageLost);
         }
 
     }
