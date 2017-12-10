@@ -23,7 +23,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
 
             SiteVars.SoilStructural[site].DecomposeStructural(site);
             SiteVars.SoilMetabolic[site].DecomposeMetabolic(site);
-
         }
 
         public static void PartitionResidue(
@@ -32,7 +31,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
                             double inputCNratio,
                             double fracLignin,
                             double ratioCNstructural,
-                            //double CNratiofrass,
                             LayerName name,
                             LayerType type,
                             ActiveSite site)
@@ -46,7 +44,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
 
             if (totalC < 0.0000001)
             {
-                //PlugIn.ModelCore.UI.WriteLine("C inputs to litter layer below threshold");
                 return;
             }
 
@@ -90,7 +87,7 @@ namespace Landis.Extension.Succession.NECN_Hydro
 
             // ...Partition carbon into structural and metabolic fraction of
             //      residue (including direct absorption) which is nitrogen
-            fracN = totalNitrogen / inputMass; // (totalC * 2.0);
+            fracN = totalNitrogen / inputMass;
 
             // ...Lignin/nitrogen ratio of residue
             ratioLigninN = fracLignin / fracN;
@@ -134,11 +131,12 @@ namespace Landis.Extension.Succession.NECN_Hydro
             fracStructuralLignin = fracLignin / (cAddToStructural / totalC);
 
             if((int) type == (int) LayerType.Surface && cAddToMetabolic <= 0.0)
-                //PlugIn.ModelCore.UI.WriteLine("   SURFACE cAddToMetabolic={0}.", cAddToMetabolic);
 
             // ...Changed allowable maximum fraction from .6 to 1.0  -lh 1/93
             if (fracStructuralLignin > 1.0)
+            {
                 fracStructuralLignin = 1.0;
+            }
 
             if((int) type == (int) LayerType.Surface)
             {
@@ -180,12 +178,7 @@ namespace Landis.Extension.Succession.NECN_Hydro
             {
                 SiteVars.SoilStructural[site].Nitrogen += NAddToStructural;
                 SiteVars.SoilMetabolic[site].Nitrogen += NAddToMetabolic;
-                //PlugIn.ModelCore.UI.WriteLine("  N added to Structural Soil: {0}.", NAddToStructural);
             }
-
-            return;
-
-        //}
         }
 
     }
