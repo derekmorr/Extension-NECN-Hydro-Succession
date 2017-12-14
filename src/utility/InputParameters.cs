@@ -58,7 +58,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
         private double initMineralN;
 
         //private IEcoregionDataset ecoregionDataset;
-        private ISpeciesDataset speciesDataset;
         
         private FunctionalTypeTable functionalTypes;
         private FireReductions[] fireReductionsTable;
@@ -1067,10 +1066,8 @@ namespace Landis.Extension.Succession.NECN_Hydro
         //---------------------------------------------------------------------
 
         public InputParameters(//IEcoregionDataset ecoregionDataset,
-                                  ISpeciesDataset    speciesDataset,
-                                  int litterCnt, int functionalCnt)
+                                  ISpeciesDataset speciesDataset, int functionalCnt)
         {
-            this.speciesDataset = speciesDataset;
             //this.ecoregionDataset = ecoregionDataset;
 
             functionalTypes = new FunctionalTypeTable(functionalCnt);
@@ -1145,19 +1142,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
         //            actualValues[ecoregion] = inputValues[ecoregion].Actual;
         //    return actualValues;
         //}
-
-        //---------------------------------------------------------------------
-
-        private Species.AuxParm<T> ConvertToActualValues<T>(Species.AuxParm<InputValue<T>> inputValues)
-        {
-            Species.AuxParm<T> actualValues = new Species.AuxParm<T>(PlugIn.ModelCore.Species);//speciesDataset);
-            foreach (ISpecies species in PlugIn.ModelCore.Species)//speciesDataset)
-                if (inputValues[species] != null)
-                    actualValues[species] = inputValues[species].Actual;
-            return actualValues;
-        }
-
-        //---------------------------------------------------------------------
 
         private void ValidatePath(string path)
         {
