@@ -101,8 +101,6 @@ namespace Landis.Extension.Succession.NECN_Hydro
         //---------------------------------------------------------------------
         public static ISiteCohorts MakeBiomassCohorts(ICommunity initComm, ActiveSite site)
         {
-            IEcoregion ecoregion = PlugIn.ModelCore.Ecoregion[site];
-
             SiteVars.Cohorts[site] = new Library.LeafBiomassCohorts.SiteCohorts();
 
             foreach(ISpeciesCohorts cohorts in initComm.Cohorts)

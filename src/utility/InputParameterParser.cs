@@ -62,10 +62,9 @@ namespace Landis.Extension.Succession.NECN_Hydro
 
             ReadLandisDataVar();
 
-            int numLitterTypes = 4;
             int numFunctionalTypes = 25;
 
-            InputParameters parameters = new InputParameters(speciesDataset, numLitterTypes, numFunctionalTypes);
+            InputParameters parameters = new InputParameters(speciesDataset, numFunctionalTypes);
 
             InputVar<int> timestep = new InputVar<int>("Timestep");
             ReadVar(timestep);
