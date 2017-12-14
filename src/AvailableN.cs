@@ -2,9 +2,10 @@
 //  Copyright 2007-2010 Portland State University, University of Wisconsin-Madison
 //  Author: Robert Scheller, Melissa Lucash, Melissa Lucash
 
-using Edu.Wisc.Forest.Flel.Util;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System;
+using System.Threading.Tasks;
 using Landis.Core;
 using Landis.SpatialModeling;
 using Landis.Library.LeafBiomassCohorts;
@@ -15,9 +16,9 @@ namespace Landis.Extension.Succession.NECN_Hydro
     /// </summary>
     public class AvailableN
     {
-        //Nested dictionary of species,cohort
-        public static Dictionary<int, Dictionary<int,double>> CohortMineralNfraction;  //calculated once per year
-        public static Dictionary<int, Dictionary<int, double>> CohortMineralNallocation;  //calculated monthly
+        // Nested dictionary of species,cohort
+        public static IDictionary<int, IDictionary<int,double>> CohortMineralNfraction;    // calculated once per year
+        public static IDictionary<int, IDictionary<int, double>> CohortMineralNallocation; // calculated monthly
 
         //---------------------------------------------------------------------
         // Method for retrieving the available resorbed N for each cohort.
@@ -109,23 +110,23 @@ namespace Landis.Extension.Succession.NECN_Hydro
 
         public static void CalculateMineralNfraction(Site site)
         {
-            AvailableN.CohortMineralNfraction = new Dictionary<int, Dictionary<int, double>>();
+            AvailableN.CohortMineralNfraction = new ConcurrentDictionary<int, IDictionary<int, double>>();
             double NAllocTotal = 0.0;
-            
-            foreach (ISpeciesCohorts speciesCohorts in SiteVars.Cohorts[site])
+
+            Parallel.ForEach<ISpeciesCohorts>(SiteVars.Cohorts[site], speciesCohorts =>
             {
                 foreach (ICohort cohort in speciesCohorts)
                 {
-                    int cohortAddYear = GetAddYear(cohort); 
+                    int cohortAddYear = GetAddYear(cohort);
                     //PlugIn.ModelCore.UI.WriteLine("CALCMineralNfraction: year={0}, mo={1}, species={2}, cohortAge={3}, cohortAddYear={4}.", PlugIn.ModelCore.CurrentTime, Century.Month, cohort.Species.Name, cohort.Age, cohortAddYear);
-                    
+
                     //Nallocation is a measure of how much N a cohort can gather relative to other cohorts
                     //double Nallocation = Roots.CalculateFineRoot(cohort.LeafBiomass); 
-                    double Nallocation = 1- Math.Exp((-Roots.CalculateCoarseRoot(cohort, cohort.WoodBiomass)*0.02));
+                    double Nallocation = 1 - Math.Exp((-Roots.CalculateCoarseRoot(cohort, cohort.WoodBiomass) * 0.02));
 
-                    if (Nallocation <= 0.0) 
+                    if (Nallocation <= 0.0)
                         Nallocation = Math.Max(Nallocation, cohort.WoodBiomass * 0.01);
-                    
+
                     NAllocTotal += Nallocation;
                     Dictionary<int, double> newEntry = new Dictionary<int, double>();
                     newEntry.Add(cohortAddYear, Nallocation);
@@ -133,24 +134,23 @@ namespace Landis.Extension.Succession.NECN_Hydro
                     if (CohortMineralNfraction.ContainsKey(cohort.Species.Index))
                     {
                         if (!CohortMineralNfraction[cohort.Species.Index].ContainsKey(cohortAddYear))
-                           CohortMineralNfraction[cohort.Species.Index][cohortAddYear] = Nallocation;
+                            CohortMineralNfraction[cohort.Species.Index][cohortAddYear] = Nallocation;
                     }
                     else
                     {
                         CohortMineralNfraction.Add(cohort.Species.Index, newEntry);
                     }
-                    
-                }
 
-            }
-            
+                }
+            });
+
             // Next relativize
-            foreach (ISpeciesCohorts speciesCohorts in SiteVars.Cohorts[site])
+            Parallel.ForEach<ISpeciesCohorts>(SiteVars.Cohorts[site], speciesCohorts =>
             {
                 //PlugIn.ModelCore.UI.WriteLine(" SpeciesCohorts = {0}", speciesCohorts.Species.Name);
                 foreach (ICohort cohort in speciesCohorts)
                 {
-                    int cohortAddYear = GetAddYear(cohort); 
+                    int cohortAddYear = GetAddYear(cohort);
                     double Nallocation = CohortMineralNfraction[cohort.Species.Index][cohortAddYear];
                     double relativeNallocation = Nallocation / NAllocTotal;
                     CohortMineralNfraction[cohort.Species.Index][cohortAddYear] = relativeNallocation;
@@ -161,9 +161,9 @@ namespace Landis.Extension.Succession.NECN_Hydro
                         PlugIn.ModelCore.UI.WriteLine("  Site_Row={0:0}, Site_Column={1:0}.", site.Location.Row, site.Location.Column);
                         PlugIn.ModelCore.UI.WriteLine("  Nallocation={0:0.00}, NAllocTotal={1:0.00}, relativeNallocation={2:0.00}.", Nallocation, NAllocTotal, relativeNallocation);
                         PlugIn.ModelCore.UI.WriteLine("  Wood={0:0.00}, Leaf={1:0.00}.", cohort.WoodBiomass, cohort.LeafBiomass);
-                    }                    
+                    }
                 }
-            }
+            });
 
         }
 
@@ -171,27 +171,27 @@ namespace Landis.Extension.Succession.NECN_Hydro
 
         public static void SetMineralNallocation(Site site)
         {
-            AvailableN.CohortMineralNallocation = new Dictionary<int, Dictionary<int, double>>();
+            AvailableN.CohortMineralNallocation = new ConcurrentDictionary<int, IDictionary<int, double>>();
             
-           double availableN = SiteVars.MineralN[site];  // g/m2
-           Math.Max(availableN, 0.01);
-                                   
-            foreach (ISpeciesCohorts speciesCohorts in SiteVars.Cohorts[site])
+            double availableN = SiteVars.MineralN[site];  // g/m2
+            Math.Max(availableN, 0.01);
+
+            Parallel.ForEach<ISpeciesCohorts>(SiteVars.Cohorts[site], speciesCohorts =>
             {
                 foreach (ICohort cohort in speciesCohorts)
                 {
-                    int cohortAddYear = GetAddYear(cohort); 
-                    if (Century.MonthCnt == 11) 
+                    int cohortAddYear = GetAddYear(cohort);
+                    if (Century.MonthCnt == 11)
                         cohortAddYear--;
-                    
+
                     double Nfraction = 0.05;  //even a new cohort gets a little love
-                    Dictionary<int, double> cohortDict = new Dictionary<int,double>();
+                    IDictionary<int, double> cohortDict = new Dictionary<int, double>();
 
                     if (AvailableN.CohortMineralNfraction.TryGetValue(cohort.Species.Index, out cohortDict))
                         cohortDict.TryGetValue(cohortAddYear, out Nfraction);
-                    
+
                     double Nallocation = Nfraction * availableN;
-                   
+
                     if (Double.IsNaN(Nallocation) || Double.IsNaN(Nfraction) || Double.IsNaN(availableN))
                     {
                         PlugIn.ModelCore.UI.WriteLine("  LIMIT N CALCULATION = NaN!  ");
@@ -199,7 +199,7 @@ namespace Landis.Extension.Succession.NECN_Hydro
                         PlugIn.ModelCore.UI.WriteLine("  Nallocation={0:0.00}, Nfraction={1:0.00}, availableN={2:0.00}.", Nallocation, Nfraction, availableN);
                     }
 
-                    Dictionary<int, double> newEntry = new Dictionary<int, double>();
+                    IDictionary<int, double> newEntry = new ConcurrentDictionary<int, double>();
                     newEntry.Add(cohortAddYear, Nallocation);
 
                     if (CohortMineralNallocation.ContainsKey(cohort.Species.Index))
@@ -212,7 +212,7 @@ namespace Landis.Extension.Succession.NECN_Hydro
                         CohortMineralNallocation.Add(cohort.Species.Index, newEntry);
                     }
                 }
-            }                   
+            });
            
         }
 
@@ -224,7 +224,7 @@ namespace Landis.Extension.Succession.NECN_Hydro
            
             int cohortAddYear = GetAddYear(cohort);             
             double mineralNallocation = 0.0;
-            Dictionary<int, double> cohortDict;
+            IDictionary<int, double> cohortDict;
 
             if (AvailableN.CohortMineralNallocation.TryGetValue(cohort.Species.Index, out cohortDict))
                 cohortDict.TryGetValue(cohortAddYear, out mineralNallocation);
